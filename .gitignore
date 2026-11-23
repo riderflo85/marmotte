@@ -1,0 +1,27 @@
+# Fichiers de travail locaux (notes, exports, fichiers hérités)
+fichiers de travail/
+
+# Journal des décisions : privé, gardé en local
+docs/brainstorming/
+
+# Données locales et secrets
+.data/
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Front
+node_modules/
+frontend/dist/
+
+# Modèle YAMNet (téléchargé, pas versionné) et bancs d'essai locaux
+backend/models/*.tflite
+backend/bench/local/
+
+# Claude Code : réglages personnels
+.claude/settings.local.json
