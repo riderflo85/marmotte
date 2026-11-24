@@ -1,0 +1,44 @@
+# Hooks lancés avant chaque commit : `uvx pre-commit install` (une fois),
+# puis `uvx pre-commit run --all-files` pour tout vérifier à la main.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+        # Les tsconfig contiennent des commentaires (JSONC), refusés par check-json.
+        exclude: ^frontend/tsconfig.*\.json$
+
+  # Même version que ruff dans backend/uv.lock.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.6
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright (backend)
+        entry: uv run --directory backend pyright
+        language: system
+        files: ^backend/.*\.(py|toml)$
+        pass_filenames: false
+      - id: eslint
+        name: eslint (frontend)
+        entry: npm --prefix frontend run lint
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+      - id: prettier
+        name: prettier (frontend)
+        entry: npm --prefix frontend run format:check
+        language: system
+        files: ^frontend/
+        pass_filenames: false
