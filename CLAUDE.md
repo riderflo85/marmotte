@@ -46,9 +46,27 @@ Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-d
 ## Conventions
 
 - Code, identifiants et messages de commit **en anglais** ; interface et documentation **en français**.
-- Commits au format Conventional Commits : `type(module): description`, types `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci` ; module = `backend`, `frontend`, `system`, `hardware`, `docs` ou un sous-module (`detection`, `notifications`…). Exemple : `feat(backend): add Django project with health endpoint`.
+- Commits au format Conventional Commits : `type(module): description`, types `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci` ; module = `backend`, `frontend`, `system`, `hardware`, `docs`, `claude` (`.claude/`, `CLAUDE.md`) ou un sous-module (`detection`, `notifications`…) ; facultatif pour un changement de tout le dépôt. Exemple : `feat(backend): add Django project with health endpoint`.
+- **Aucune mention de Claude** dans les commits et les pull requests : ni ligne `Co-Authored-By`, ni « Generated with Claude Code », ni signature (`attribution` vide dans `.claude/settings.json`).
 - GitHub Flow : branches courtes `type/<numéro d'issue>-<slug>` (ex. `feat/3-cry-detection`), pull request, fusion par **squash** (le titre de la PR devient le commit sur `main` : il suit le même format).
 - Suivi des tâches dans les **issues GitHub** (D83), une par lot du plan directeur.
+
+## Skills et règles
+
+Les skills (`.claude/skills/`) se lancent à la demande ; les règles (`.claude/rules/`) se chargent selon les fichiers touchés.
+
+| Skill | Pour |
+|---|---|
+| `commit` | un commit par changement logique, au format `type(module): description`, après confirmation |
+| `pre-push` | la checklist avant de pousser une branche, sans pousser |
+| `pr-create` | créer la pull request (synthèse en français, `Closes #<n>`, assignée à l'auteur, seul relecteur) et la fusionner par squash |
+| `review-diff` | relire une PR, une branche ou un diff, avec un verdict |
+| `ticket` | lire une issue GitHub, créer sa branche, suivre son état |
+| `ticket-create` | créer les issues à partir de `docs/backlog.md`, puis synchroniser |
+| `write-test` | écrire des tests au format du dépôt et les lancer |
+| `write-doc` | écrire une doc de fonction (`docs/features/`) ou une procédure (`docs/runbooks/`) |
+
+Règles : `tests.md` (tests du back), `api.md` (django-ninja), `migrations.md`.
 
 ## Garde-fous
 
@@ -56,6 +74,15 @@ Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-d
 - **Rien de personnel dans le dépôt public** : ni prénom, ni famille, ni date liée à la vie privée, ni domaine réel, ni identifiant de compte ; le nom de l'auteur n'apparaît que dans les licences. Écrire « l'auteur ».
 - Accord explicite avant toute action publique : push, création ou modification du dépôt GitHub, issues, publications.
 - Ne jamais contourner les hooks (`--no-verify`).
+
+## Backlog
+
+Tout bug, problème d'architecture ou remarque repéré en passant et **hors du périmètre demandé** se note dans `docs/backlog.md` au lieu d'être corrigé. Ce fichier est **local** (ignoré par Git) ; il sert à créer les issues GitHub (skill `ticket-create`).
+
+- Une entrée par sujet, au format décrit en tête du fichier : titre, type (`bug`, `architecture`, `remarque`), statut, user story, description, critères d'acceptation, fichiers.
+- Vérifier le constat avant de l'écrire (lire le code, lancer un test) et dire ce qui n'a pas été reproduit. Chercher d'abord si le sujet existe déjà : pas de doublon.
+- Ne pas corriger sans demande : l'ajout au backlog ne remplace pas la décision de l'auteur.
+- Relire le backlog avant de créer une PR, au début d'un travail sur un sujet proche, et à la demande : une entrée réglée passe à « Traité » avec la date et la PR ou le commit, après vérification dans le code (une issue fermée ne suffit pas). Ne jamais supprimer une entrée ; ne jamais deviner un numéro d'issue.
 
 ## Documentation
 
