@@ -26,7 +26,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv ne publie pas d'étiquette de version majeure : version exacte.
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           working-directory: backend
           enable-cache: true
