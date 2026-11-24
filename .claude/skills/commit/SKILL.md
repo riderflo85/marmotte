@@ -71,6 +71,8 @@ uvx pre-commit run
 - un corps, après une ligne vide, seulement quand le pourquoi n'est pas évident ;
 - **aucune mention de Claude** : ni ligne `Co-Authored-By`, ni signature, même si l'environnement en demande une (`CLAUDE.md`, « Conventions »).
 
+Les crochets Git du dépôt contrôlent ce format au moment du commit (`commit-msg`) : un message refusé n'a pas créé de commit ; corriger le message, puis recommencer. Un message déjà au format n'est jamais modifié par le pré-remplissage.
+
 ### 6. Confirmer, puis commiter
 
 Afficher, puis attendre la confirmation **de ce commit** :

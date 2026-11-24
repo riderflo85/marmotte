@@ -65,7 +65,7 @@ Outils à installer une fois sur le poste de développement :
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (Python et dépendances du back) ;
 - Node.js 24, de préférence avec [nvm](https://github.com/nvm-sh/nvm) (front) ;
 - [just](https://just.systems), qui regroupe les commandes du dépôt : `uv tool install rust-just`, puis `just --list` ;
-- les contrôles avant chaque commit : `uvx pre-commit install` à la racine du dépôt.
+- les contrôles Git : `uvx pre-commit install` à la racine du dépôt. Ils vérifient le code avant chaque commit, pré-remplissent le début du message (`type(module): `) d'après la branche, et refusent un message hors convention.
 
 Installation, configuration et lancement en développement : [`backend/README.md`](backend/README.md) pour le back, [`frontend/README.md`](frontend/README.md) pour l'app. Tout le lint : `just lint` ; tous les tests : `just test`. Le suivi des tâches se fait dans les **issues GitHub**.
 
