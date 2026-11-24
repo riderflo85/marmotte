@@ -38,9 +38,11 @@ django_find_project = false
 # Tests live inside each module (marmotte/<module>/tests/).
 testpaths = ["marmotte"]
 addopts = ["--import-mode=importlib"]
-# Set by pytest-env before pytest-django loads the settings (a conftest.py would be too late).
-# The local .env never overrides them (python-dotenv keeps existing variables).
+# Set by pytest-env before pytest-django loads the settings (a conftest.py would be too late),
+# replacing any value from the shell. MARMOTTE_ENV_FILE empty: the local .env is never read.
 env = [
+    "MARMOTTE_ENV_FILE=",
+    "DJANGO_SETTINGS_MODULE=marmotte.settings.dev",
     "DJANGO_SECRET_KEY=test-only-secret-key",
     "DJANGO_ALLOWED_HOSTS=testserver,localhost",
 ]

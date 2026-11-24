@@ -89,6 +89,7 @@ django-ninja n'a ni serializers ni routeurs à la DRF. Équivalences retenues : 
 
 - Rangés dans chaque module (`marmotte/<module>/tests/`) ; `testpaths = ["marmotte"]`.
 - **Indépendants du `.env`** : pytest-env fournit `DJANGO_SECRET_KEY` et `DJANGO_ALLOWED_HOSTS` de test, et `DJANGO_SETTINGS_MODULE = marmotte.settings.dev` dans la configuration de pytest. Comme python-dotenv ne remplace jamais une variable déjà définie, les valeurs de test l'emportent. La CI n'a besoin ni de `.env` ni de secrets GitHub.
+- *Précisé après la relecture du 2026-11-24* : pytest-env vide aussi `MARMOTTE_ENV_FILE`, ce qui coupe la lecture du `.env` pendant les tests (sinon ses autres variables, comme `MARMOTTE_DATA_DIR`, s'appliquaient), et fixe `DJANGO_SETTINGS_MODULE`. `load_env` lit le fichier nommé par `MARMOTTE_ENV_FILE`, ou `backend/.env` si elle n'est pas définie.
 
 ## Docs à mettre à jour
 

@@ -75,5 +75,15 @@ def to_list(value: str, separator: str = ",") -> list[str]:
 
 
 def load_env(path: Path | None = None) -> None:
-    """Load ``backend/.env`` (or ``path``), never replacing a variable already set."""
-    load_dotenv(path or BACKEND_DIR / ".env", override=False)
+    """Load a ``.env`` file, never replacing a variable already set.
+
+    Without ``path``, the file is the one named by ``MARMOTTE_ENV_FILE``, or
+    ``backend/.env`` when that variable is not set. An empty ``MARMOTTE_ENV_FILE``
+    turns the loading off: the tests use it to never read the developer's ``.env``.
+    """
+    if path is None:
+        configured = os.environ.get("MARMOTTE_ENV_FILE")
+        if configured == "":
+            return
+        path = Path(configured) if configured else BACKEND_DIR / ".env"
+    load_dotenv(path, override=False)

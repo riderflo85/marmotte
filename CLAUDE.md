@@ -23,7 +23,7 @@ Python est installé et géré par **uv** (version figée dans `backend/.python-
 
 Marqueurs pytest : `hardware` (vrai matériel, sur le Pi seulement), `model` (fichier YAMNet requis), `bench` (banc d'essai complet). La CI de base les exclut.
 
-Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-dotenv, qui ne remplace jamais une variable déjà définie) : `DJANGO_SETTINGS_MODULE` (`marmotte.settings.dev` sur le PC, `marmotte.settings.prod` sur le Pi et par défaut), `DJANGO_SECRET_KEY` (obligatoire), `DJANGO_ALLOWED_HOSTS` (obligatoire, séparés par des virgules), `MARMOTTE_DATA_DIR` (par défaut `backend/.data/`). Les tests ne lisent pas le `.env` du développeur : pytest-env leur fournit leurs valeurs (`backend/pyproject.toml`).
+Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-dotenv, qui ne remplace jamais une variable déjà définie) : `DJANGO_SETTINGS_MODULE` (`marmotte.settings.dev` sur le PC, `marmotte.settings.prod` sur le Pi et par défaut), `DJANGO_SECRET_KEY` (obligatoire), `DJANGO_ALLOWED_HOSTS` (obligatoire, séparés par des virgules), `MARMOTTE_DATA_DIR` (par défaut `backend/.data/`). `MARMOTTE_ENV_FILE` désigne un autre fichier que `backend/.env` ; vide, aucun fichier n'est lu. Les tests ne lisent jamais le `.env` du développeur : pytest-env vide `MARMOTTE_ENV_FILE` et fixe leurs valeurs, `DJANGO_SETTINGS_MODULE` compris (`backend/pyproject.toml`).
 
 ## Organisation
 

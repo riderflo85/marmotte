@@ -69,6 +69,34 @@ def test_load_env_keeps_existing_variables(tmp_path: Path, monkeypatch: pytest.M
     assert os.environ[VAR] == "already-set"
 
 
+def test_load_env_uses_file_named_by_marmotte_env_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(VAR, "placeholder")
+    monkeypatch.delenv(VAR)
+    env_file = tmp_path / "other.env"
+    env_file.write_text(f"{VAR}=from-named-file\n", encoding="utf-8")
+    monkeypatch.setenv("MARMOTTE_ENV_FILE", str(env_file))
+    load_env()
+    assert os.environ[VAR] == "from-named-file"
+
+
+def test_load_env_does_nothing_when_marmotte_env_file_is_empty(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[object] = []
+    monkeypatch.setattr("marmotte.settings.load_dotenv", lambda *args, **kwargs: calls.append(args))
+    monkeypatch.setenv("MARMOTTE_ENV_FILE", "")
+    load_env()
+    assert calls == []
+
+
+def test_tests_never_load_the_local_env_file() -> None:
+    # Set by pytest-env (pyproject.toml), whatever the shell or the local .env say.
+    assert os.environ["MARMOTTE_ENV_FILE"] == ""
+    assert os.environ["DJANGO_SETTINGS_MODULE"] == "marmotte.settings.dev"
+
+
 def test_dev_settings_enable_debug() -> None:
     assert importlib.import_module("marmotte.settings.dev").DEBUG is True
 

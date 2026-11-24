@@ -36,7 +36,7 @@ uv run python -c "from django.core.management.utils import get_random_secret_key
 | `DJANGO_ALLOWED_HOSTS` | Noms acceptés par le serveur, séparés par des virgules | `127.0.0.1,localhost` |
 | `MARMOTTE_DATA_DIR` | Dossier des données du babyphone (facultatif) | `backend/.data/` par défaut |
 
-Une variable déjà définie dans le terminal l'emporte sur le `.env`. Sans `.env` ni variables, le back démarre en mode production et s'arrête aussitôt, faute de clé secrète. Sur le Pi, c'est systemd qui fournit les variables.
+Une variable déjà définie dans le terminal l'emporte sur le `.env`. `MARMOTTE_ENV_FILE` permet de lire un autre fichier que `backend/.env` ; vide, aucun fichier n'est lu. Sans `.env` ni variables, le back démarre en mode production et s'arrête aussitôt, faute de clé secrète. Sur le Pi, c'est systemd qui fournit les variables.
 
 ## Lancer en développement
 
@@ -60,7 +60,7 @@ uv run ruff format         # mise en forme
 uv run pyright             # types
 ```
 
-Les tests ne lisent pas votre `.env` : pytest leur fournit leurs propres valeurs (`pyproject.toml`). Les marqueurs `hardware` (vrai matériel, sur le Pi), `model` (fichier YAMNet) et `bench` (banc d'essai complet) désignent les tests exclus de la CI de base. Depuis la racine du dépôt, `just lint` et `just test` lancent tout, back et front.
+Les tests ne lisent jamais votre `.env` : pytest-env vide `MARMOTTE_ENV_FILE`, ce qui coupe sa lecture, et fixe leurs propres valeurs (`pyproject.toml`), même si le terminal en définit d'autres. Les marqueurs `hardware` (vrai matériel, sur le Pi), `model` (fichier YAMNet) et `bench` (banc d'essai complet) désignent les tests exclus de la CI de base. Depuis la racine du dépôt, `just lint` et `just test` lancent tout, back et front.
 
 ## Organisation
 
