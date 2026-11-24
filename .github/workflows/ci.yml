@@ -35,9 +35,10 @@ jobs:
           cache-dependency-glob: uv.lock
       # --locked : échoue si uv.lock ne correspond plus à pyproject.toml, au lieu d'installer d'autres versions.
       - run: uv sync --locked
-      - run: uv run ruff check
-      - run: uv run ruff format --check
-      - run: uv run pyright
+      # Le back et les scripts du dépôt (crochets Git), avec la configuration du back.
+      - run: uv run ruff check --config pyproject.toml . ../scripts
+      - run: uv run ruff format --check --config pyproject.toml . ../scripts
+      - run: uv run pyright . ../scripts
       - run: uv run pytest -m "not hardware and not model and not bench"
 
   frontend:
@@ -60,3 +61,27 @@ jobs:
       - run: npm run format:check
       - run: npx vitest --run
       - run: npm run build
+
+  hooks:
+    name: hooks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.4.0
+        with:
+          working-directory: backend
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      # Contrôles légers de pre-commit ; ruff, pyright, ESLint et Prettier tournent dans les autres jobs.
+      - run: uvx pre-commit run --all-files --show-diff-on-failure
+        env:
+          SKIP: ruff-check,ruff-format,pyright,eslint,prettier
+      - name: Tests des crochets Git
+        run: uv run --directory backend pytest ../scripts
+      # Le titre de la PR devient le commit de main (fusion par squash) : il suit la convention.
+      # Dependabot écrit déjà au bon format, avec des titres parfois plus longs que 72 caractères.
+      - name: Titre de la PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.user.login != 'dependabot[bot]'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | python3 scripts/git_hooks/commit_message.py check -
