@@ -35,9 +35,9 @@
 ### Task 1: Types communs et sources audio
 
 **Files:**
-- Create: `backend/src/marmotte/common/__init__.py`, `backend/src/marmotte/common/enums.py`, `backend/src/marmotte/detection/__init__.py`, `backend/src/marmotte/detection/types.py`, `backend/src/marmotte/detection/audio.py`
+- Create: `backend/marmotte/common/__init__.py`, `backend/marmotte/common/enums.py`, `backend/marmotte/detection/__init__.py`, `backend/marmotte/detection/types.py`, `backend/marmotte/detection/audio.py`
 - Modify: `backend/pyproject.toml` (dépendances `numpy`, `scipy`, `soundfile`, `sounddevice`)
-- Test: `backend/tests/detection/test_audio.py`
+- Test: `backend/marmotte/detection/tests/test_audio.py`
 
 **Interfaces:**
 - Produces:
@@ -83,8 +83,8 @@ def test_alsa_source_reads_shared_micro():
 ### Task 2: Niveau sonore, bruit de fond et santé du micro
 
 **Files:**
-- Create: `backend/src/marmotte/detection/level.py`
-- Test: `backend/tests/detection/test_level.py`
+- Create: `backend/marmotte/detection/level.py`
+- Test: `backend/marmotte/detection/tests/test_level.py`
 
 **Interfaces:**
 - Produces: `SILENCE_DB = -120.0` ; `rms_dbfs(frame: Audio) -> float` ; `class HighPass(cutoff_hz: float = 80.0, order: int = 2)` avec `process(frame: Audio) -> Audio` ; `class NoiseFloor(warmup_s: float = 10.0, rise_db_per_s: float = 0.1, fall_tau_s: float = 2.0)` avec `update(level_db: float, dt: float) -> float` et `value_db: float` ; `class MicHealth(silent_db: float = -100.0, silent_after_s: float = 10.0)` avec `update(level_db: float, dt: float) -> None` et `is_silent: bool`.
@@ -150,9 +150,9 @@ def test_mic_health_flags_digital_silence_after_10_s():
 ### Task 3: Classifieur YAMNet
 
 **Files:**
-- Create: `backend/src/marmotte/detection/classifier.py`, `backend/src/marmotte/detection/model_files.py`, `backend/src/marmotte/detection/data/yamnet_class_map.csv` (copié de `tensorflow/models`, `research/audioset/yamnet/`, Apache 2.0), `backend/models/models.toml`, `backend/tests/detection/fakes.py`, `backend/tests/fixtures/cry_cc0.flac` (court pleur CC0, crédité dans `backend/bench/CREDITS.md`)
+- Create: `backend/marmotte/detection/classifier.py`, `backend/marmotte/detection/model_files.py`, `backend/marmotte/detection/data/yamnet_class_map.csv` (copié de `tensorflow/models`, `research/audioset/yamnet/`, Apache 2.0), `backend/models/models.toml`, `backend/marmotte/detection/tests/fakes.py`, `backend/marmotte/detection/tests/fixtures/cry_cc0.flac` (court pleur CC0, crédité dans `backend/bench/CREDITS.md`)
 - Modify: `backend/pyproject.toml` (dépendance `ai-edge-litert`)
-- Test: `backend/tests/detection/test_classifier.py`
+- Test: `backend/marmotte/detection/tests/test_classifier.py`
 
 **Interfaces:**
 - Produces: `class Classifier(Protocol): def scores(self, window: Audio) -> Mapping[SoundClass, float]` ; `YAMNET_NAMES: dict[SoundClass, tuple[str, ...]]` (Global Constraints ; au départ un seul nom par catégorie) ; `DEFAULT_CLASS_MAP: Path` (le CSV du paquet) ; `load_class_names(path: Path) -> list[str]` ; `class YamnetClassifier(model_path: Path, class_map: Path = DEFAULT_CLASS_MAP)` ; `ensure_yamnet(models_dir: Path) -> Path` ; `class ModelChecksumError(Exception)`. Dans les tests (`tests/detection/fakes.py`) : `FakeClassifier(rule: Callable[[Audio], Mapping[SoundClass, float]])`, appelé avec la tranche ; `loud_is_cry(threshold_db: float) -> FakeClassifier` (renvoie `{CRY: 0.9}` si le niveau de la tranche dépasse `threshold_db`, sinon `{}`) ; `silent() -> FakeClassifier` (renvoie toujours `{}`).
@@ -178,7 +178,7 @@ def test_yamnet_returns_retained_classes_only():
 
 @pytest.mark.model
 def test_yamnet_scores_cry_fixture_as_cry():
-    window = first_window_of("tests/fixtures/cry_cc0.flac")
+    window = first_window_of(FIXTURES / "cry_cc0.flac")  # FIXTURES = Path(__file__).parent / "fixtures"
     assert yamnet().scores(window)[SoundClass.CRY] > 0.3
 ```
 
@@ -192,8 +192,8 @@ def test_yamnet_scores_cry_fixture_as_cry():
 ### Task 4: Décision : fenêtre glissante, filet « hurlement », anti-rafale
 
 **Files:**
-- Create: `backend/src/marmotte/detection/decision.py`
-- Test: `backend/tests/detection/test_decision.py`
+- Create: `backend/marmotte/detection/decision.py`
+- Test: `backend/marmotte/detection/tests/test_decision.py`
 
 **Interfaces:**
 - Produces: `THRESHOLDS: dict[Sensitivity, float] = {LOW: 0.5, MEDIUM: 0.3, HIGH: 0.15}` (valeurs de départ, réglées en tâche 8) ; `BABY_CLASSES = (CRY, WHIMPER, BABBLE, LAUGH)` (ordre = priorité en cas d'égalité) ; `class SlidingWindowDecider(threshold: float, n: int = 4, k: int = 2)` avec `push(scores: Mapping[SoundClass, float]) -> SoundClass | None` ; `class ScreamNet(margin_db: float = 25.0, min_duration_s: float = 1.0, score_threshold: float = 0.5)` avec `push(level_db: float, floor_db: float, scream_score: float, dt: float) -> bool` ; `class AntiBurst(pause_s: float = 60.0)` avec `allow(now_s: float, via_scream_net: bool) -> bool`.
@@ -253,8 +253,8 @@ def test_anti_burst_blocks_during_pause_but_not_screams():
 ### Task 5: Pipeline, sorties et service
 
 **Files:**
-- Create: `backend/src/marmotte/detection/pipeline.py`, `backend/src/marmotte/detection/sinks.py`, `backend/src/marmotte/detection/service.py`, `backend/src/marmotte/detection/__main__.py`
-- Test: `backend/tests/detection/test_pipeline.py`, `backend/tests/detection/test_service.py`
+- Create: `backend/marmotte/detection/pipeline.py`, `backend/marmotte/detection/sinks.py`, `backend/marmotte/detection/service.py`, `backend/marmotte/detection/__main__.py`
+- Test: `backend/marmotte/detection/tests/test_pipeline.py`, `backend/marmotte/detection/tests/test_service.py`
 
 **Interfaces:**
 - Consumes: tâches 1 à 4.
@@ -309,8 +309,8 @@ def test_cli_prints_alerts_as_json_lines(tmp_path, capsys):   # test_service.py,
 ### Task 6: Banc d'essai : manifeste, préparation des sons, mesures
 
 **Files:**
-- Create: `backend/src/marmotte/detection/bench/__init__.py`, `.../bench/manifest.py`, `.../bench/prepare.py`, `.../bench/runner.py`, `.../bench/__main__.py`, `backend/bench/manifest.toml` (vide au départ), `backend/bench/CREDITS.md`
-- Test: `backend/tests/detection/test_bench.py`
+- Create: `backend/marmotte/detection/bench/__init__.py`, `.../bench/manifest.py`, `.../bench/prepare.py`, `.../bench/runner.py`, `.../bench/__main__.py`, `backend/bench/manifest.toml` (vide au départ), `backend/bench/CREDITS.md`
+- Test: `backend/marmotte/detection/tests/test_bench.py`
 
 **Interfaces:**
 - Produces:
@@ -377,8 +377,8 @@ Expected: au moins 110 sons chargés sans erreur de licence ; **moins de 60 Mo**
 ### Task 8: Régler les seuils et brancher le banc dans la CI
 
 **Files:**
-- Modify: `backend/src/marmotte/detection/pipeline.py` (`DetectionConfig` par défaut), `backend/src/marmotte/detection/decision.py` (`THRESHOLDS`), `backend/src/marmotte/detection/classifier.py` (`YAMNET_NAMES`), `.github/workflows/ci.yml`
-- Create: `backend/tests/detection/test_bench_targets.py`
+- Modify: `backend/marmotte/detection/pipeline.py` (`DetectionConfig` par défaut), `backend/marmotte/detection/decision.py` (`THRESHOLDS`), `backend/marmotte/detection/classifier.py` (`YAMNET_NAMES`), `.github/workflows/ci.yml`
+- Create: `backend/marmotte/detection/tests/test_bench_targets.py`
 
 - [ ] **Step 1: Écrire le test du banc**
 
@@ -394,5 +394,5 @@ def test_bench_meets_d81_targets():
 - [ ] **Step 3: Régler** `gate_margin_db`, `n`, `k`, `THRESHOLDS[MEDIUM]`, `scream_margin_db` et `pause_s` jusqu'à tenir les objectifs, en restant dans le budget de 8 s. Évaluer aussi l'ajout de `"Crying, sobbing"` à `YAMNET_NAMES[CRY]` (lot 0) : le garder si les pleurs manqués baissent sans ajouter de fausses alertes. Noter les valeurs retenues et le rapport final dans `docs/plans/resultats-tests-prealables.md`, section « Banc de détection ».
 - [ ] **Step 4: Règle d'arrêt** : si aucun réglage ne tient les objectifs, arrêt et retour vers l'auteur avec le rapport : la piste prévue est d'essayer EfficientAT derrière la même interface `Classifier` (D62).
 - [ ] **Step 5: Vérifier** — Run: `uv run pytest -m "model or bench" -v` — Expected: PASS.
-- [ ] **Step 6: Ajouter le job `detection` à la CI** : déclenché quand `backend/src/marmotte/detection/**`, `backend/bench/**` ou `backend/models/**` changent ; cache du modèle par empreinte de `backend/models/models.toml` ; `uv run python -c "from marmotte.detection.model_files import ensure_yamnet; ensure_yamnet(Path('models'))"` puis `uv run pytest -m "model or bench"`. Un échec bloque la fusion (P67).
+- [ ] **Step 6: Ajouter le job `detection` à la CI** : déclenché quand `backend/marmotte/detection/**`, `backend/bench/**` ou `backend/models/**` changent ; cache du modèle par empreinte de `backend/models/models.toml` ; `uv run python -c "from marmotte.detection.model_files import ensure_yamnet; ensure_yamnet(Path('models'))"` puis `uv run pytest -m "model or bench"`. Un échec bloque la fusion (P67).
 - [ ] **Step 7: Commit** — `git commit -m "ci(detection): gate merges on bench targets"`

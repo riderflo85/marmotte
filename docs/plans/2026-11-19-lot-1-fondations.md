@@ -1,5 +1,7 @@
 # Lot 1 : fondations du dépôt — plan détaillé
 
+> **Amendé le 2026-11-24** : l'organisation du back décrite ici (disposition `src/`, réglages `marmotte.config.settings`, tests dans `backend/tests/`, variables `MARMOTTE_SECRET_KEY` et `MARMOTTE_DEBUG`) a été remplacée par celle de `docs/plans/2026-11-24-refacto-back-design.md` : paquet à plat `backend/marmotte/`, réglages `marmotte.settings.dev` / `prod`, fichier `.env`, tests dans chaque module. La suite du lot (tâches 4 et 5) suit la nouvelle organisation.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** un dépôt public propre, avec le squelette du back et du front, les outils de qualité et une intégration continue verte sur x86 et ARM.

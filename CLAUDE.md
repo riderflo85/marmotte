@@ -11,9 +11,10 @@ Python est installé et géré par **uv** (version figée dans `backend/.python-
 | Besoin | Commande |
 |---|---|
 | Installer le back | `cd backend && uv sync` |
+| Configurer le back | `cd backend && cp .env.example .env`, puis y mettre une clé générée (commande dans le fichier) |
 | Tests back (comme la CI) | `cd backend && uv run pytest -m "not hardware and not model and not bench"` |
 | Style et types du back | `uv run ruff check`, `uv run ruff format`, `uv run pyright` (dans `backend/`) |
-| Serveur de dev | `cd backend && MARMOTTE_DEBUG=1 uv run uvicorn marmotte.config.asgi:application --reload` |
+| Serveur de dev | `cd backend && uv run uvicorn marmotte.asgi:application --reload` (`/api/health`, `/api/docs`) |
 | Installer le front | `cd frontend && npm ci` |
 | Front | `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run format:check`, `npx vitest --run`, `npm run build` (dans `frontend/`) |
 | Tout le lint, tous les tests | `just lint`, `just test` |
@@ -22,13 +23,16 @@ Python est installé et géré par **uv** (version figée dans `backend/.python-
 
 Marqueurs pytest : `hardware` (vrai matériel, sur le Pi seulement), `model` (fichier YAMNet requis), `bench` (banc d'essai complet). La CI de base les exclut.
 
-Réglages lus dans l'environnement : `MARMOTTE_SECRET_KEY` (obligatoire hors développement), `MARMOTTE_DEBUG` (`1` = développement), `MARMOTTE_DATA_DIR` (par défaut `backend/.data/`).
+Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-dotenv, qui ne remplace jamais une variable déjà définie) : `DJANGO_SETTINGS_MODULE` (`marmotte.settings.dev` sur le PC, `marmotte.settings.prod` sur le Pi et par défaut), `DJANGO_SECRET_KEY` (obligatoire), `DJANGO_ALLOWED_HOSTS` (obligatoire, séparés par des virgules), `MARMOTTE_DATA_DIR` (par défaut `backend/.data/`). Les tests ne lisent pas le `.env` du développeur : pytest-env leur fournit leurs valeurs (`backend/pyproject.toml`).
 
 ## Organisation
 
-- `backend/` : paquet Python `marmotte` en disposition `src/` (`backend/src/marmotte/`), réglages Django `marmotte.config.settings`, tests dans `backend/tests/` (même arborescence que le paquet).
+- `backend/` : paquet Python `marmotte` à plat (`backend/marmotte/`, à côté de `manage.py`). Détail et commandes : `backend/README.md`.
+  - `marmotte/settings/` : `base.py` assemble les thèmes `django/` (un fichier par sujet) et `project/` (réglages propres à Marmotte) ; `dev.py` et `prod.py` par-dessus (`DEBUG` fixé là, pas de variable). Chaque valeur se lit avec `get_config_value` (`marmotte/settings/__init__.py`), qui arrête le démarrage si une variable obligatoire manque. `import *` seulement dans ce dossier.
+  - Un module par domaine (`marmotte/base/`, puis `detection`, `notifications`…) : `apps.py`, `models/`, `schemas/` (schémas django-ninja, l'équivalent des serializers), `views/` (un fichier par objet, chacun avec son `Router` ninja), `api_urls.py` (assemble les routeurs du module), `admin.py`, `utils/`, `management/commands/`, `tests/` (`tests_models/`, `tests_schemas/`, `tests_views/`, `test_<sujet>.py`). Un fichier par objet dans chaque dossier.
+  - `marmotte/api.py` monte le routeur de chaque module ; `marmotte/urls.py` le sert sous `/api/` ; `marmotte/asgi.py` est le point d'entrée d'Uvicorn.
 - `frontend/` : l'app PWA. `system/` : préparation du Pi, services, go2rtc, image A/B. `hardware/` : modèles 3D en code, câblage. `docs/` : documentation.
-- Version SemVer définie une seule fois dans `backend/src/marmotte/__init__.py` (`__version__`) ; la version de l'image est celle de l'app.
+- Version SemVer définie une seule fois dans `backend/marmotte/__version__.py` (`__version__`) ; la version de l'image est celle de l'app.
 
 ## Règles d'architecture
 
@@ -58,6 +62,12 @@ Réglages lus dans l'environnement : `MARMOTTE_SECRET_KEY` (obligatoire hors dé
 - Specs : `docs/fonctionnel/specs-fonctionnelles.md` (exigences F-xx, NF-xx), `docs/technique/choix-techniques-et-architecture.md` (architecture, raison des choix), `docs/technique/modelisation-3d.md`.
 - Décisions (D*) et propositions (P*) : `docs/brainstorming/notes-brainstorming.md`, journal des décisions, **privé** (ignoré par Git, jamais publié). Pour corriger une décision, demander d'abord à l'auteur, puis ajouter une mention datée « Amendé le … » plutôt que réécrire.
 - Plans : `docs/plans/` (plan directeur en 15 lots, un plan détaillé par lot). Résultats des tests sur le vrai matériel et pièges connus (go2rtc, micro, filtre IR-Cut) : `docs/plans/resultats-tests-prealables.md`.
+
+## Pièges connus
+
+- Une variable lue par les réglages pendant les tests se fixe dans `env` de pytest-env (`backend/pyproject.toml`), pas dans un `conftest.py` : pytest-django charge les réglages avant les `conftest.py`.
+- uv ne charge pas le `.env` tout seul : c'est `load_env()` (`marmotte/settings/__init__.py`) qui le fait, dans `manage.py`, `asgi.py` et `settings/base.py`.
+- Un serveur lancé en arrière-plan pour un essai : `curl --max-time`, et un port libre (le 8000 peut être pris par un autre programme, `curl` attend alors sans fin).
 
 ## Faire évoluer ce fichier
 
