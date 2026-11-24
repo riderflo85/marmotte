@@ -1,8 +1,9 @@
 # Fichiers de travail locaux (notes, exports, fichiers hérités)
 fichiers de travail/
 
-# Journal des décisions : privé, gardé en local
+# Journal des décisions et backlog : privés, gardés en local
 docs/brainstorming/
+docs/backlog.md
 
 # Données locales et secrets
 .data/
@@ -23,5 +24,6 @@ frontend/dist/
 backend/models/*.tflite
 backend/bench/local/
 
-# Claude Code : réglages personnels
+# Claude Code : réglages personnels et sorties locales (relectures gardées)
 .claude/settings.local.json
+.claude/out/
