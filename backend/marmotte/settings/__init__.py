@@ -26,9 +26,7 @@ class _Required:
 REQUIRED: Final = _Required()
 
 
-def get_config_value[T = str](
-    name: str, default: str | _Required = REQUIRED, *, cast: Callable[[str], T] = str
-) -> T:
+def get_config_value[T = str](name: str, default: str | _Required = REQUIRED, *, cast: Callable[[str], T] = str) -> T:
     """Return the environment variable ``name``, cast if asked.
 
     The return type follows ``cast``: ``str`` without it, ``list[str]`` with
@@ -45,9 +43,7 @@ def get_config_value[T = str](
     try:
         return cast(raw)
     except Exception as error:
-        raise ImproperlyConfigured(
-            f"The environment variable {name} is invalid: {error}"
-        ) from error
+        raise ImproperlyConfigured(f"The environment variable {name} is invalid: {error}") from error
 
 
 def to_bool(value: str) -> bool:

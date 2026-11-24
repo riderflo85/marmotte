@@ -1,6 +1,7 @@
 """Settings for Django core."""
 
-from marmotte.settings import get_config_value, to_list
+from marmotte.settings import get_config_value
+from marmotte.settings import to_list
 
 # https://docs.djangoproject.com/en/6.0/ref/settings/#secret-key
 SECRET_KEY = get_config_value("DJANGO_SECRET_KEY")

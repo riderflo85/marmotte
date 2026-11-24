@@ -1,4 +1,6 @@
-from django.urls import URLPattern, URLResolver, path
+from django.urls import URLPattern
+from django.urls import URLResolver
+from django.urls import path
 
 from marmotte.api import api
 

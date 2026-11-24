@@ -7,7 +7,11 @@ from pathlib import Path
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 
-from marmotte.settings import get_config_value, load_env, prepare_environment, to_bool, to_list
+from marmotte.settings import get_config_value
+from marmotte.settings import load_env
+from marmotte.settings import prepare_environment
+from marmotte.settings import to_bool
+from marmotte.settings import to_list
 from marmotte.settings.django.paths import BACKEND_DIR
 
 VAR = "MARMOTTE_TEST_VAR"
@@ -22,15 +26,11 @@ def _run_without_settings_module(*args: str) -> subprocess.CompletedProcess[str]
         "DJANGO_SECRET_KEY": "test-only-secret-key",
         "DJANGO_ALLOWED_HOSTS": "localhost",
     }
-    return subprocess.run(
-        [sys.executable, *args], env=env, capture_output=True, text=True, check=False
-    )
+    return subprocess.run([sys.executable, *args], env=env, capture_output=True, text=True, check=False)
 
 
 class TestGetConfigValue:
-    def test_missing_required_value_names_the_variable(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_missing_required_value_names_the_variable(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """A required variable that is not set stops with its name in the message."""
         # GIVEN
         monkeypatch.delenv(VAR, raising=False)
@@ -56,9 +56,7 @@ class TestGetConfigValue:
             get_config_value(VAR)
         assert get_config_value(VAR, default="x") == "x"
 
-    def test_value_from_environment_wins_over_default(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_value_from_environment_wins_over_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """A variable that is set is used instead of the default."""
         # GIVEN
         monkeypatch.setenv(VAR, "from-env")
@@ -123,7 +121,7 @@ class TestToList:
     def test_refuses_a_value_without_items(self) -> None:
         """A value made only of separators is refused."""
         # WHEN / THEN
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="no item"):
             to_list(" , ,")
 
 
@@ -140,9 +138,7 @@ class TestLoadEnv:
         # THEN
         assert os.environ[VAR] == "from-file"
 
-    def test_keeps_existing_variables(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_keeps_existing_variables(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """A variable already set is never replaced by the file."""
         # GIVEN
         monkeypatch.setenv(VAR, "already-set")
@@ -153,9 +149,7 @@ class TestLoadEnv:
         # THEN
         assert os.environ[VAR] == "already-set"
 
-    def test_uses_file_named_by_marmotte_env_file(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_uses_file_named_by_marmotte_env_file(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Without a path, the file named by MARMOTTE_ENV_FILE is loaded."""
         # GIVEN
         monkeypatch.setenv(VAR, "placeholder")
@@ -168,15 +162,11 @@ class TestLoadEnv:
         # THEN
         assert os.environ[VAR] == "from-named-file"
 
-    def test_does_nothing_when_marmotte_env_file_is_empty(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_does_nothing_when_marmotte_env_file_is_empty(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """An empty MARMOTTE_ENV_FILE turns the loading off."""
         # GIVEN
         calls: list[object] = []
-        monkeypatch.setattr(
-            "marmotte.settings.load_dotenv", lambda *args, **kwargs: calls.append((args, kwargs))
-        )
+        monkeypatch.setattr("marmotte.settings.load_dotenv", lambda *args, **kwargs: calls.append((args, kwargs)))
         monkeypatch.setenv("MARMOTTE_ENV_FILE", "")
         # WHEN
         load_env()
@@ -256,9 +246,7 @@ class TestEntryPoints:
     def test_manage_py_runs_prod_settings_without_configuration(self) -> None:
         """manage.py runs the production settings when nothing is configured."""
         # WHEN
-        result = _run_without_settings_module(
-            str(BACKEND_DIR / "manage.py"), "shell", "--no-imports", "-c", PRINT_MODE
-        )
+        result = _run_without_settings_module(str(BACKEND_DIR / "manage.py"), "shell", "--no-imports", "-c", PRINT_MODE)
         # THEN
         assert result.stdout.strip() == "marmotte.settings.prod False", result.stderr
 

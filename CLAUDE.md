@@ -41,7 +41,8 @@ Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-d
 - **File d'envoi et filet des notifications** (P73) : chaque notification est écrite en base avec un identifiant unique avant l'envoi ; si une alerte de pleur n'est pas envoyée en ~2 s, la détection l'envoie elle-même.
 - **Aucun secret dans le dépôt** (clés VAPID, jeton Infomaniak, mots de passe, clés d'appareil, clé de signature) : ils sont générés ou stockés sur le Pi, ou dans les secrets de GitHub Actions.
 - **Aucune dépendance sous licence non commerciale** ; du code **GPL** seulement comme programme séparé, jamais importé ni intégré.
-- **Typage** : toute fonction écrite ou modifiée a ses paramètres et son retour typés (`-> None` compris), en syntaxe moderne (`list[str]`, `X | None`). pyright (mode `standard`) tourne dans la CI. Exception ponctuelle : `# pyright: ignore[<règle>]`, jamais un `ignore` nu.
+- **Typage** : toute fonction écrite ou modifiée a ses paramètres et son retour typés (`-> None` compris), en syntaxe moderne (`list[str]`, `X | None`). pyright (mode `standard`) tourne dans la CI ; la règle `ANN` de ruff refuse une fonction non annotée.
+- **Style** : ruff pour le back (`backend/pyproject.toml` : 120 colonnes, un import par ligne, règles `E`, `W`, `F`, `I`, `UP`, `B`, `SIM`, `C4`, `PTH`, `RUF`, `N`, `PT`, `DJ`, `LOG`, `ANN`, `TID`, `ERA`), Prettier pour le front (120 colonnes). Pas de black, isort ni flake8 : ruff les remplace. Exception ponctuelle : `# pyright: ignore[<règle>]`, jamais un `ignore` nu.
 
 ## Conventions
 
