@@ -60,7 +60,7 @@ Le dépôt est organisé en :
 - `hardware/` : modèles 3D en code et câblage ;
 - `docs/` : la documentation.
 
-Les outils et commandes seront décrits ici avec le code. Le suivi des tâches se fait dans les **issues GitHub**.
+Installation, configuration et lancement en développement : [`backend/README.md`](backend/README.md) pour le back, [`frontend/README.md`](frontend/README.md) pour l'app. Le suivi des tâches se fait dans les **issues GitHub**.
 
 **Contributions** : les contributions de code ne sont pas acceptées pour l'instant.
 
