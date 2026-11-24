@@ -73,9 +73,9 @@ def test_alsa_source_reads_shared_micro():
     assert AlsaSource().read(HOP).shape == (HOP,)
 ```
 
-- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `cd backend && uv run pytest tests/detection/test_audio.py -v -m "not hardware"` — Expected: FAIL (modules absents).
+- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `cd backend && uv run pytest marmotte/detection/tests/test_audio.py -v -m "not hardware"` — Expected: FAIL (modules absents).
 - [ ] **Step 3: Implémenter** : `to_mono_16k` fait la moyenne des canaux, rééchantillonne par `scipy.signal.resample_poly` (rapport réduit par PGCD), remplace `NaN`/infinis par 0 et borne à [-1, 1]. `WavFileSource` lit tout le fichier avec `soundfile`, le convertit une fois, puis sert des tranches ; la dernière tranche incomplète est complétée par des zéros. `AlsaSource` ouvre un `sounddevice.InputStream` **stéréo** 16 kHz `float32` sur le périphérique ALSA donné (le module `plug` d'ALSA convertit la fréquence, lot 0 tâche 5) et garde le canal `channel` (0 = gauche, celui de l'INMP441 ; Global Constraints).
-- [ ] **Step 4: Vérifier** — Run: `uv run pytest tests/detection/test_audio.py -v -m "not hardware" && uv run pyright` — Expected: PASS.
+- [ ] **Step 4: Vérifier** — Run: `uv run pytest marmotte/detection/tests/test_audio.py -v -m "not hardware" && uv run pyright` — Expected: PASS.
 - [ ] **Step 5: Commit** — `git commit -m "feat(detection): add shared enums and audio sources"`
 
 ---
@@ -140,9 +140,9 @@ def test_mic_health_flags_digital_silence_after_10_s():
     assert not mh.is_silent
 ```
 
-- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `uv run pytest tests/detection/test_level.py -v` — Expected: FAIL.
+- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `uv run pytest marmotte/detection/tests/test_level.py -v` — Expected: FAIL.
 - [ ] **Step 3: Implémenter** : `rms_dbfs` = 20·log10(RMS), borné à `SILENCE_DB`. `HighPass` : filtre de Butterworth (`scipy.signal.butter(order, cutoff_hz, "highpass", fs=SAMPLE_RATE, output="sos")`) appliqué par `sosfilt` en gardant l'état (`zi`) d'un appel à l'autre ; il ne sert qu'à la mesure du niveau, YAMNet reçoit le son non filtré. `NoiseFloor` : **le premier niveau mesuré initialise le bruit de fond** (arrivée en pleine fête, Review Focus 3) ; pendant `warmup_s`, il suit le niveau dans les deux sens avec une constante de temps de 1 s ; ensuite, descend vers un niveau plus bas avec la constante `fall_tau_s`, et monte vers un niveau plus haut d'au plus `rise_db_per_s` par seconde. `MicHealth` : vrai quand le niveau reste sous `silent_db` pendant `silent_after_s` d'affilée.
-- [ ] **Step 4: Vérifier** — Run: `uv run pytest tests/detection/test_level.py -v` — Expected: PASS.
+- [ ] **Step 4: Vérifier** — Run: `uv run pytest marmotte/detection/tests/test_level.py -v` — Expected: PASS.
 - [ ] **Step 5: Commit** — `git commit -m "feat(detection): add level, noise floor and mic health"`
 
 ---
@@ -155,7 +155,7 @@ def test_mic_health_flags_digital_silence_after_10_s():
 - Test: `backend/marmotte/detection/tests/test_classifier.py`
 
 **Interfaces:**
-- Produces: `class Classifier(Protocol): def scores(self, window: Audio) -> Mapping[SoundClass, float]` ; `YAMNET_NAMES: dict[SoundClass, tuple[str, ...]]` (Global Constraints ; au départ un seul nom par catégorie) ; `DEFAULT_CLASS_MAP: Path` (le CSV du paquet) ; `load_class_names(path: Path) -> list[str]` ; `class YamnetClassifier(model_path: Path, class_map: Path = DEFAULT_CLASS_MAP)` ; `ensure_yamnet(models_dir: Path) -> Path` ; `class ModelChecksumError(Exception)`. Dans les tests (`tests/detection/fakes.py`) : `FakeClassifier(rule: Callable[[Audio], Mapping[SoundClass, float]])`, appelé avec la tranche ; `loud_is_cry(threshold_db: float) -> FakeClassifier` (renvoie `{CRY: 0.9}` si le niveau de la tranche dépasse `threshold_db`, sinon `{}`) ; `silent() -> FakeClassifier` (renvoie toujours `{}`).
+- Produces: `class Classifier(Protocol): def scores(self, window: Audio) -> Mapping[SoundClass, float]` ; `YAMNET_NAMES: dict[SoundClass, tuple[str, ...]]` (Global Constraints ; au départ un seul nom par catégorie) ; `DEFAULT_CLASS_MAP: Path` (le CSV du paquet) ; `load_class_names(path: Path) -> list[str]` ; `class YamnetClassifier(model_path: Path, class_map: Path = DEFAULT_CLASS_MAP)` ; `ensure_yamnet(models_dir: Path) -> Path` ; `class ModelChecksumError(Exception)`. Dans les tests (`marmotte/detection/tests/fakes.py`) : `FakeClassifier(rule: Callable[[Audio], Mapping[SoundClass, float]])`, appelé avec la tranche ; `loud_is_cry(threshold_db: float) -> FakeClassifier` (renvoie `{CRY: 0.9}` si le niveau de la tranche dépasse `threshold_db`, sinon `{}`) ; `silent() -> FakeClassifier` (renvoie toujours `{}`).
 
 - [ ] **Step 1: Récupérer le modèle** : le modèle YAMNet **de classification** au format LiteRT (entrée de 15 600 échantillons, sortie de 521 scores). URL candidate, **à vérifier** : `https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/audio_classification/rpi/lite-model_yamnet_classification_tflite_1.tflite` ; sinon la variante `tfLite/classification-tflite` de `google/yamnet` sur Kaggle. Noter l'URL, l'empreinte SHA-256 et la licence dans `backend/models/models.toml` (`[yamnet] url, sha256, file, license`).
 - [ ] **Step 2: Écrire les tests qui échouent**
@@ -182,9 +182,9 @@ def test_yamnet_scores_cry_fixture_as_cry():
     assert yamnet().scores(window)[SoundClass.CRY] > 0.3
 ```
 
-- [ ] **Step 3: Vérifier qu'ils échouent** — Run: `uv run pytest tests/detection/test_classifier.py -v` — Expected: FAIL.
-- [ ] **Step 4: Implémenter** : `ensure_yamnet` lit `models.toml`, télécharge le fichier s'il manque, vérifie le SHA-256, lève `ModelChecksumError` sinon. `YamnetClassifier` charge le modèle avec `ai_edge_litert.interpreter.Interpreter`, trouve les indices des catégories retenues **par leur nom** dans la table des classes (jamais par numéro en dur), et renvoie leurs scores ; le score d'une catégorie est le plus haut des scores de ses noms YAMNet. `FakeClassifier` dans `tests/detection/fakes.py`.
-- [ ] **Step 5: Vérifier** — Run: `uv run pytest tests/detection/test_classifier.py -v` (après `ensure_yamnet`) — Expected: PASS, tests `model` compris.
+- [ ] **Step 3: Vérifier qu'ils échouent** — Run: `uv run pytest marmotte/detection/tests/test_classifier.py -v` — Expected: FAIL.
+- [ ] **Step 4: Implémenter** : `ensure_yamnet` lit `models.toml`, télécharge le fichier s'il manque, vérifie le SHA-256, lève `ModelChecksumError` sinon. `YamnetClassifier` charge le modèle avec `ai_edge_litert.interpreter.Interpreter`, trouve les indices des catégories retenues **par leur nom** dans la table des classes (jamais par numéro en dur), et renvoie leurs scores ; le score d'une catégorie est le plus haut des scores de ses noms YAMNet. `FakeClassifier` dans `marmotte/detection/tests/fakes.py`.
+- [ ] **Step 5: Vérifier** — Run: `uv run pytest marmotte/detection/tests/test_classifier.py -v` (après `ensure_yamnet`) — Expected: PASS, tests `model` compris.
 - [ ] **Step 6: Commit** — `git commit -m "feat(detection): add YAMNet classifier behind Classifier interface"`
 
 ---
@@ -243,9 +243,9 @@ def test_anti_burst_blocks_during_pause_but_not_screams():
     assert ab.allow(61.0, via_scream_net=False)
 ```
 
-- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `uv run pytest tests/detection/test_decision.py -v` — Expected: FAIL.
+- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `uv run pytest marmotte/detection/tests/test_decision.py -v` — Expected: FAIL.
 - [ ] **Step 3: Implémenter** selon les interfaces : une tranche est « positive » pour une catégorie si son score dépasse le seuil ; le décideur renvoie la catégorie de `BABY_CLASSES` qui a au moins `k` tranches positives parmi les `n` dernières (priorité dans l'ordre de `BABY_CLASSES`). `ScreamNet` cumule la durée pendant laquelle `level_db - floor_db >= margin_db` (remise à zéro sinon) et renvoie vrai dès `min_duration_s`, ou tout de suite si `scream_score >= score_threshold` ; il ne se déclenche **qu'une fois par épisode** et se réarme quand le niveau repasse sous la marge et le score sous le seuil (sinon un long cri, qui passe outre l'anti-rafale, sonnerait toutes les secondes). `AntiBurst.allow` mémorise l'instant de chaque alerte autorisée.
-- [ ] **Step 4: Vérifier** — Run: `uv run pytest tests/detection/test_decision.py -v` — Expected: PASS.
+- [ ] **Step 4: Vérifier** — Run: `uv run pytest marmotte/detection/tests/test_decision.py -v` — Expected: PASS.
 - [ ] **Step 5: Commit** — `git commit -m "feat(detection): add sliding window, scream net and anti-burst"`
 
 ---
@@ -298,10 +298,10 @@ def test_cli_prints_alerts_as_json_lines(tmp_path, capsys):   # test_service.py,
     assert json.loads(capsys.readouterr().out.splitlines()[0])["kind"] == "cry"
 ```
 
-- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `uv run pytest tests/detection/test_pipeline.py tests/detection/test_service.py -v` — Expected: FAIL.
+- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `uv run pytest marmotte/detection/tests/test_pipeline.py marmotte/detection/tests/test_service.py -v` — Expected: FAIL.
 - [ ] **Step 3: Implémenter `DetectionPipeline.feed`** : accumule le son ; pour chaque pas de `HOP` complet, calcule le niveau du pas **après le filtre `HighPass`** (le classifieur reçoit le son non filtré), met à jour `NoiseFloor` et `MicHealth` (avec `dt = HOP / SAMPLE_RATE`) ; la porte est ouverte si un des pas de la tranche courante dépasse le bruit de fond de `gate_margin_db` ; si la porte est ouverte et que la tranche de `WINDOW` échantillons est complète, demande les scores au classifieur, sinon pousse des scores vides au décideur ; consulte `ScreamNet` (niveau, bruit de fond, score `scream`) ; si `mode_provider()` vaut `SIESTE` et qu'une décision ou le filet se déclenche et que `AntiBurst` l'autorise, crée un `AlertEvent` (`offset_s` = position dans le flux, `at = start + offset`).
 - [ ] **Step 4: Implémenter `JsonLinesSink`, `run` et `__main__`** selon les interfaces ; `__main__` journalise aussi `stats` toutes les 10 secondes sur la sortie d'erreur.
-- [ ] **Step 5: Vérifier** — Run: `uv run pytest tests/detection -v -m "not hardware and not model" && uv run pyright` — Expected: PASS.
+- [ ] **Step 5: Vérifier** — Run: `uv run pytest marmotte/detection/tests -v -m "not hardware and not model" && uv run pyright` — Expected: PASS.
 - [ ] **Step 6: Commit** — `git commit -m "feat(detection): add detection pipeline and service entry point"`
 
 ---
@@ -347,9 +347,9 @@ def test_report_meets_targets_only_with_zero_missed_and_at_most_one_fa():
     assert not BenchReport(10, 1, 0, 7200.0, 0.0, {}).meets_targets()
 ```
 
-- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `uv run pytest tests/detection/test_bench.py -v` — Expected: FAIL.
+- [ ] **Step 2: Vérifier qu'ils échouent** — Run: `uv run pytest marmotte/detection/tests/test_bench.py -v` — Expected: FAIL.
 - [ ] **Step 3: Implémenter** selon les interfaces. `run_bench` : pour chaque son de bébé, un flux = 10 s de fond calme (un son étiqueté `room`, à son niveau d'origine) + le son + 5 s de fond calme, rejoué dans un pipeline neuf en mode `sieste` (le décalage de 10 s couvre l'adaptation du bruit de fond, comme le compte à rebours de 30 s dans la réalité) ; pour les fonds, une seule longue séquence d'au moins **7 200 s**, formée des sons `background` tirés dans un ordre aléatoire (graine 42) avec un gain aléatoire entre -6 et +6 dB.
-- [ ] **Step 4: Vérifier** — Run: `uv run pytest tests/detection/test_bench.py -v` — Expected: PASS.
+- [ ] **Step 4: Vérifier** — Run: `uv run pytest marmotte/detection/tests/test_bench.py -v` — Expected: PASS.
 - [ ] **Step 5: Commit** — `git commit -m "feat(detection): add bench manifest, preparation and metrics"`
 
 ---

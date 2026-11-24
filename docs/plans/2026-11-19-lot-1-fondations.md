@@ -176,7 +176,7 @@ git commit -m "feat(frontend): add React TypeScript app skeleton"
 Run: `uvx pre-commit install && uvx pre-commit run --all-files`
 Expected: tous les hooks passent.
 
-- [ ] **Step 3: Écrire le `justfile`** : `lint` (ruff, pyright, ESLint, Prettier) ; `test` (`pytest -m "not hardware and not model and not bench"` puis `vitest --run`) ; `deploy host` : `rsync -a --delete --exclude .venv --exclude .data backend/ {{host}}:~/marmotte/backend/`, puis `ssh {{host}} 'cd ~/marmotte/backend && uv sync --locked && uv run python -c "import marmotte; print(marmotte.__version__)"'`.
+- [ ] **Step 3: Écrire le `justfile`** : `lint` (ruff, pyright, ESLint, Prettier) ; `test` (`pytest -m "not hardware and not model and not bench"` puis `vitest --run`) ; `deploy host` : `rsync -a --delete --exclude .venv --exclude .data --exclude .env backend/ {{host}}:~/marmotte/backend/` (le `.env` du PC ne part jamais sur le Pi), puis `ssh {{host}} 'cd ~/marmotte/backend && uv sync --locked && uv run python -c "import marmotte; print(marmotte.__version__)"'`.
 - [ ] **Step 4: Vérifier le déploiement** (Pi de dev du lot 0 allumé, uv installé dessus)
 
 Run: `just deploy`
