@@ -18,7 +18,7 @@ Python est installé et géré par **uv** (version figée dans `backend/.python-
 | Installer le front | `cd frontend && npm ci` |
 | Front | `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run format:check`, `npx vitest --run`, `npm run build` (dans `frontend/`) |
 | Tout le lint, tous les tests | `just lint`, `just test` |
-| Hooks pre-commit | `uvx pre-commit install` (une fois), `uvx pre-commit run --all-files` |
+| Hooks pre-commit | `uvx pre-commit install` (une fois : contrôles avant le commit, pré-remplissage et contrôle du message), `uvx pre-commit run --all-files` |
 | Déployer sur le Pi de dev | `just deploy` (par défaut `marmotte-dev.local`, clé `~/.ssh/id_ed25519_raspi`), `just deploy <hôte>`, `just deploy <hôte> <clé ssh>` : arguments dans l'ordre, sans `nom=` (`host=x` serait pris comme nom d'hôte) |
 
 Marqueurs pytest : `hardware` (vrai matériel, sur le Pi seulement), `model` (fichier YAMNet requis), `bench` (banc d'essai complet). La CI de base les exclut.
@@ -47,7 +47,8 @@ Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-d
 ## Conventions
 
 - Code, identifiants et messages de commit **en anglais** ; interface et documentation **en français**.
-- Commits au format Conventional Commits : `type(module): description`, types `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci` ; module = `backend`, `frontend`, `system`, `hardware`, `docs`, `claude` (`.claude/`, `CLAUDE.md`) ou un sous-module (`detection`, `notifications`…) ; facultatif pour un changement de tout le dépôt. Exemple : `feat(backend): add Django project with health endpoint`.
+- Commits au format Conventional Commits : `type(module): description`, types `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci` ; module = `backend`, `frontend`, `system`, `hardware`, `docs`, `claude` (`.claude/`, `CLAUDE.md`), `deps` (Dependabot) ou un sous-module (`detection`, `notifications`…) ; facultatif pour un changement de tout le dépôt.
+- Les crochets Git (`scripts/git_hooks/commit_message.py`) **pré-remplissent** `type(module): ` d'après la branche et les fichiers indexés quand le message n'a pas d'en-tête, et **refusent** un message hors format (type inconnu, description en majuscule ou avec un point final, titre de plus de 72 caractères, mention de Claude). La CI applique le même contrôle au titre des PR. Exemple : `feat(backend): add Django project with health endpoint`.
 - **Aucune mention de Claude** dans les commits et les pull requests : ni ligne `Co-Authored-By`, ni « Generated with Claude Code », ni signature (`attribution` vide dans `.claude/settings.json`).
 - GitHub Flow : branches courtes `type/<numéro d'issue>-<slug>` (ex. `feat/3-cry-detection`) ; une petite tâche sans issue (doc, dépendance, réglage d'outil) se fait sur `type/<slug>` (ex. `docs/fix-readme-typo`) ; pull request, fusion par **squash** (le titre de la PR devient le commit sur `main` : il suit le même format).
 - Suivi des tâches dans les **issues GitHub** (D83), une par lot du plan directeur.

@@ -8,12 +8,13 @@ default:
 
 # Style et types : ruff, pyright, ESLint, tsc, Prettier
 lint:
-    cd backend && uv run ruff check && uv run ruff format --check && uv run pyright
+    cd backend && uv run ruff check --config pyproject.toml . ../scripts && uv run ruff format --check --config pyproject.toml . ../scripts && uv run pyright . ../scripts
     cd frontend && npm run lint && npm run typecheck && npm run format:check
 
 # Tests sans le matériel, le modèle ni le banc complet (comme la CI)
 test:
     cd backend && uv run pytest -m "not hardware and not model and not bench"
+    cd backend && uv run pytest ../scripts
     cd frontend && npx vitest --run
 
 # Arguments dans l'ordre : `just deploy <hôte> <clé ssh>`. Une clé absente est ignorée (avec un avertissement) : ssh essaie alors ses clés habituelles.
