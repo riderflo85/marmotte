@@ -11,6 +11,10 @@ dependencies = [
     "python-dotenv>=1.0",
 ]
 
+[tool.uv]
+# Same uv on the PC, the Pi and in CI (setup-uv reads this range).
+required-version = ">=0.13,<0.14"
+
 [dependency-groups]
 dev = [
     "pytest>=9",
