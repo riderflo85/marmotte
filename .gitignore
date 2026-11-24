@@ -5,13 +5,20 @@ fichiers de travail/
 docs/brainstorming/
 docs/backlog.md
 
-# Données locales et secrets
+# Données locales et secrets (tout fichier .env, sauf les modèles .env.example)
 .data/
 .env
+.env.*
+!.env.example
+
+# Journaux de travail locaux de Claude Code
+.superpowers/
 
 # Python
 .venv/
 __pycache__/
+backend/dist/
+*.egg-info/
 *.pyc
 .pytest_cache/
 .ruff_cache/

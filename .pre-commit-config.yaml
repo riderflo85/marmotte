@@ -8,22 +8,28 @@ repos:
       - id: trailing-whitespace
       - id: check-yaml
       - id: check-toml
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: [--maxkb=1024]
       - id: check-json
         # Les tsconfig contiennent des commentaires (JSONC), refusés par check-json.
         exclude: ^frontend/tsconfig.*\.json$
 
-  # Même version que ruff dans backend/uv.lock.
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.6
-    hooks:
-      - id: ruff-check
-        args: [--fix]
-        files: ^backend/
-      - id: ruff-format
-        files: ^backend/
-
+  # ruff et pyright viennent de l'environnement du back (backend/uv.lock) : une seule version.
   - repo: local
     hooks:
+      - id: ruff-check
+        name: ruff check (backend)
+        entry: uv run --directory backend ruff check --fix
+        language: system
+        files: ^backend/.*\.(py|toml)$
+        pass_filenames: false
+      - id: ruff-format
+        name: ruff format (backend)
+        entry: uv run --directory backend ruff format
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
       - id: pyright
         name: pyright (backend)
         entry: uv run --directory backend pyright

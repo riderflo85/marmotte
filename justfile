@@ -16,6 +16,7 @@ test:
     cd backend && uv run pytest -m "not hardware and not model and not bench"
     cd frontend && npx vitest --run
 
+# Arguments dans l'ordre : `just deploy <hôte> <clé ssh>`. Une clé absente est ignorée (avec un avertissement) : ssh essaie alors ses clés habituelles.
 # Envoie le back sur le Pi de dev (sans le .env du PC), installe ses dépendances et affiche la version
 deploy host="marmotte-dev.local" key="~/.ssh/id_ed25519_raspi":
     #!/usr/bin/env bash

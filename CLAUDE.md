@@ -19,7 +19,7 @@ Python est installé et géré par **uv** (version figée dans `backend/.python-
 | Front | `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run format:check`, `npx vitest --run`, `npm run build` (dans `frontend/`) |
 | Tout le lint, tous les tests | `just lint`, `just test` |
 | Hooks pre-commit | `uvx pre-commit install` (une fois), `uvx pre-commit run --all-files` |
-| Déployer sur le Pi de dev | `just deploy` (par défaut `marmotte-dev.local`), `just deploy host=<nom>` |
+| Déployer sur le Pi de dev | `just deploy` (par défaut `marmotte-dev.local`, clé `~/.ssh/id_ed25519_raspi`), `just deploy <hôte>`, `just deploy <hôte> <clé ssh>` : arguments dans l'ordre, sans `nom=` (`host=x` serait pris comme nom d'hôte) |
 
 Marqueurs pytest : `hardware` (vrai matériel, sur le Pi seulement), `model` (fichier YAMNet requis), `bench` (banc d'essai complet). La CI de base les exclut.
 

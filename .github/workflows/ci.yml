@@ -31,7 +31,8 @@ jobs:
         with:
           working-directory: backend
           enable-cache: true
-          cache-dependency-glob: backend/uv.lock
+          # Relatif à working-directory (backend/).
+          cache-dependency-glob: uv.lock
       # --locked : échoue si uv.lock ne correspond plus à pyproject.toml, au lieu d'installer d'autres versions.
       - run: uv sync --locked
       - run: uv run ruff check

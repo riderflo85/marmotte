@@ -60,7 +60,14 @@ Le dépôt est organisé en :
 - `hardware/` : modèles 3D en code et câblage ;
 - `docs/` : la documentation.
 
-Installation, configuration et lancement en développement : [`backend/README.md`](backend/README.md) pour le back, [`frontend/README.md`](frontend/README.md) pour l'app. Le suivi des tâches se fait dans les **issues GitHub**.
+Outils à installer une fois sur le poste de développement :
+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (Python et dépendances du back) ;
+- Node.js 24, de préférence avec [nvm](https://github.com/nvm-sh/nvm) (front) ;
+- [just](https://just.systems), qui regroupe les commandes du dépôt : `uv tool install rust-just`, puis `just --list` ;
+- les contrôles avant chaque commit : `uvx pre-commit install` à la racine du dépôt.
+
+Installation, configuration et lancement en développement : [`backend/README.md`](backend/README.md) pour le back, [`frontend/README.md`](frontend/README.md) pour l'app. Tout le lint : `just lint` ; tous les tests : `just test`. Le suivi des tâches se fait dans les **issues GitHub**.
 
 **Contributions** : les contributions de code ne sont pas acceptées pour l'instant.
 
