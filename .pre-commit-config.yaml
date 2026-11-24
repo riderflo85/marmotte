@@ -1,5 +1,10 @@
 # Hooks lancés avant chaque commit : `uvx pre-commit install` (une fois),
 # puis `uvx pre-commit run --all-files` pour tout vérifier à la main.
+# `uvx pre-commit install` installe les trois crochets : avant le commit, pré-remplissage et contrôle du message.
+default_install_hook_types: [pre-commit, prepare-commit-msg, commit-msg]
+# Les contrôles de fichiers ne tournent qu'avant le commit (pas sur le fichier du message).
+default_stages: [pre-commit]
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -20,21 +25,21 @@ repos:
     hooks:
       - id: ruff-check
         name: ruff check (backend)
-        entry: uv run --directory backend ruff check --fix
+        entry: uv run --directory backend ruff check --fix --config pyproject.toml . ../scripts
         language: system
-        files: ^backend/.*\.(py|toml)$
+        files: ^(backend|scripts)/.*\.(py|toml)$
         pass_filenames: false
       - id: ruff-format
         name: ruff format (backend)
-        entry: uv run --directory backend ruff format
+        entry: uv run --directory backend ruff format --config pyproject.toml . ../scripts
         language: system
-        files: ^backend/.*\.py$
+        files: ^(backend|scripts)/.*\.py$
         pass_filenames: false
       - id: pyright
         name: pyright (backend)
-        entry: uv run --directory backend pyright
+        entry: uv run --directory backend pyright . ../scripts
         language: system
-        files: ^backend/.*\.(py|toml)$
+        files: ^(backend|scripts)/.*\.(py|toml)$
         pass_filenames: false
       - id: eslint
         name: eslint (frontend)
@@ -48,3 +53,19 @@ repos:
         language: system
         files: ^frontend/
         pass_filenames: false
+
+  # Messages de commit : format type(module): description (scripts/git_hooks/commit_message.py).
+  - repo: local
+    hooks:
+      - id: commit-message-prefill
+        name: pré-remplissage du message de commit
+        entry: python3 scripts/git_hooks/commit_message.py prefill
+        language: system
+        stages: [prepare-commit-msg]
+        always_run: true
+      - id: commit-message-check
+        name: format du message de commit
+        entry: python3 scripts/git_hooks/commit_message.py check
+        language: system
+        stages: [commit-msg]
+        always_run: true
