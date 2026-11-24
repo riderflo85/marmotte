@@ -6,7 +6,11 @@ import sys
 
 
 def main() -> None:
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "marmotte.config.settings")
+    from marmotte.settings import load_env
+
+    # The .env may choose the settings module: load it first. Default: production.
+    load_env()
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "marmotte.settings.prod")
     from django.core.management import execute_from_command_line
 
     execute_from_command_line(sys.argv)
