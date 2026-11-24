@@ -43,7 +43,7 @@ Aucun commit : arrêter. Branche en retard sur la cible : le signaler (rebase av
 
 ### 2. Issue et type
 
-Branche `type/<n>-<slug>` → issue `#<n>`, type `type`. Lire l'issue (`gh issue view <n>`) : son titre et ses critères d'acceptation nourrissent « Contexte » et « Vérifications ». Branche sans numéro : pas de ligne « Issue », le dire.
+Branche `type/<n>-<slug>` → issue `#<n>`, type `type`. Lire l'issue (`gh issue view <n>`) : son titre et ses critères d'acceptation nourrissent « Contexte » et « Vérifications ». Branche `type/<slug>` (petite tâche sans issue, permise par `CLAUDE.md`) : pas de ligne `Closes`, le dire.
 
 ### 3. Synthèse (en français)
 

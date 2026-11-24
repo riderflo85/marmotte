@@ -83,11 +83,13 @@ Dans l'entrée : statut **« Issue créée (#<n>) »** et l'URL. Ne jamais devin
 Pour chaque entrée « Issue créée (#<n>) » :
 
 ```bash
-gh issue view <n> --json state,stateReason,closedAt
+gh api repos/{owner}/{repo}/issues/<n> --jq '{state, state_reason, closed_at}'
 ```
 
-- **Fermée comme terminée** : vérifier **dans le code** que le problème est réglé (relire les fichiers cités, rejouer la vérification de l'entrée). Réglé : statut **« Traité (<date>, PR #<pr> ou commit <sha>) »**. Pas réglé : le dire, ne pas changer le statut.
-- **Fermée comme non prévue** : le dire à l'auteur, qui décide.
+(`gh issue view --json stateReason` n'existe pas dans le `gh` des dépôts Ubuntu, 2.46 : l'API REST donne la même information ; `state_reason` vaut `completed`, `not_planned` ou `null`.)
+
+- **Fermée** (`state` = `closed`, `state_reason` = `completed` ou `null`) : vérifier **dans le code** que le problème est réglé (relire les fichiers cités, rejouer la vérification de l'entrée). Réglé : statut **« Traité (<date>, PR #<pr> ou commit <sha>) »**. Pas réglé : le dire, ne pas changer le statut.
+- **Fermée comme non prévue** (`state_reason` = `not_planned`) : le dire à l'auteur, qui décide.
 - **Ouverte** : rien à faire.
 
 Ne jamais supprimer une entrée du backlog.

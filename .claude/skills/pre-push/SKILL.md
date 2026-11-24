@@ -19,7 +19,7 @@ git fetch origin
 git status --short
 ```
 
-- Arrêter sur `main` ou sur une branche qui ne suit pas `type/<numéro d'issue>-<slug>`.
+- Arrêter sur `main` ou sur une branche qui ne suit ni `type/<numéro d'issue>-<slug>` ni `type/<slug>` (petite tâche sans issue).
 - Arbre de travail non propre : le signaler (tests et lint tournent sur l'arbre, pas sur les commits).
 - **Cible** : la base de la PR si elle existe (`gh pr view --json baseRefName -q .baseRefName`), sinon `main` ; notée `<cible>` ci-dessous.
 - Commits concernés : `git log origin/<cible>..HEAD --oneline`. Aucun : rien à pousser.
@@ -75,7 +75,7 @@ Chaque titre suit `type(module): description`, en anglais. Pas de `fixup`, `WIP`
 
 ### 9. Backlog
 
-Relire `docs/backlog.md` (section « Backlog » de `CLAUDE.md`) : une entrée réglée par la branche passe à « Traité » avec la référence de la PR ; un problème repéré pendant cette checklist et hors périmètre s'y note.
+Relire `docs/backlog.md` (section « Backlog » de `CLAUDE.md`) : une entrée que la branche règle reçoit la mention « réglée par la branche <branche> » ; elle ne passera à « Traité » qu'après la fusion et une vérification dans le code (`pr-create merge`, `ticket-create sync`). Un problème repéré pendant cette checklist et hors périmètre s'y note.
 
 ### 10. Bilan
 

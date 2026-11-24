@@ -13,4 +13,4 @@ paths:
 - Environnement : `monkeypatch` (`setenv`, `delenv`, `setattr`). Une variable posée par le code testé (pas par `monkeypatch`) se nettoie en la posant puis la retirant avec `monkeypatch` avant l'appel. Pas de `unittest.mock` sans raison.
 - Points d'entrée (`manage.py`, `asgi.py`, services) : un sous-processus `subprocess.run([sys.executable, …])` avec un environnement explicite et `MARMOTTE_ENV_FILE=""`.
 - Marqueurs : `hardware` (vrai matériel, sur le Pi seulement), `model` (fichier YAMNet requis), `bench` (banc d'essai complet). La CI lance `-m "not hardware and not model and not bench"`. Jamais de réseau ni de matériel réel hors de ces marqueurs : le matériel passe par sa version simulée (P63).
-- Lancer : `cd backend && uv run pytest <chemin>::<Classe>::<test>`, la suite avec `uv run pytest`, tout le dépôt avec `just test`.
+- Lancer : `cd backend && uv run pytest <chemin>::<Classe>::<test>`, la suite comme la CI avec `uv run pytest -m "not hardware and not model and not bench"`, tout le dépôt avec `just test`. Sans filtre de marqueurs, `uv run pytest` lance aussi les tests du vrai matériel, du modèle et du banc.

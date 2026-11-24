@@ -19,7 +19,7 @@ git remote -v
 git status --short
 ```
 
-- **Branche** : `type/<numéro d'issue>-<slug>` (ex. `feat/3-cry-detection`). Sur `main` : refuser dès que le dépôt a un dépôt distant (`git remote -v` non vide) et proposer une branche (skill `ticket`). Tant qu'il n'y a pas de dépôt distant (lot 1, avant la création du dépôt GitHub), le plan en cours commite sur `main` : le dire dans la confirmation.
+- **Branche** : `type/<numéro d'issue>-<slug>` (ex. `feat/3-cry-detection`), ou `type/<slug>` pour une petite tâche sans issue. Sur `main` : refuser dès que le dépôt a un dépôt distant (`git remote -v` non vide) et proposer une branche (skill `ticket`). Tant qu'il n'y a pas de dépôt distant (lot 1, avant la création du dépôt GitHub), le plan en cours commite sur `main` : le dire dans la confirmation.
 - Les hooks pre-commit lancent ruff, pyright, ESLint et Prettier : `npm` doit être dans le `PATH` (Node 24 par nvm). Un hook « command not found » signale un environnement incomplet : le dire, ne pas contourner.
 
 ### 1. Lire le changement

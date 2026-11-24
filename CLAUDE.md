@@ -48,7 +48,7 @@ Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-d
 - Code, identifiants et messages de commit **en anglais** ; interface et documentation **en français**.
 - Commits au format Conventional Commits : `type(module): description`, types `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci` ; module = `backend`, `frontend`, `system`, `hardware`, `docs`, `claude` (`.claude/`, `CLAUDE.md`) ou un sous-module (`detection`, `notifications`…) ; facultatif pour un changement de tout le dépôt. Exemple : `feat(backend): add Django project with health endpoint`.
 - **Aucune mention de Claude** dans les commits et les pull requests : ni ligne `Co-Authored-By`, ni « Generated with Claude Code », ni signature (`attribution` vide dans `.claude/settings.json`).
-- GitHub Flow : branches courtes `type/<numéro d'issue>-<slug>` (ex. `feat/3-cry-detection`), pull request, fusion par **squash** (le titre de la PR devient le commit sur `main` : il suit le même format).
+- GitHub Flow : branches courtes `type/<numéro d'issue>-<slug>` (ex. `feat/3-cry-detection`) ; une petite tâche sans issue (doc, dépendance, réglage d'outil) se fait sur `type/<slug>` (ex. `docs/fix-readme-typo`) ; pull request, fusion par **squash** (le titre de la PR devient le commit sur `main` : il suit le même format).
 - Suivi des tâches dans les **issues GitHub** (D83), une par lot du plan directeur.
 
 ## Skills et règles

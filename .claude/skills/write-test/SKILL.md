@@ -49,7 +49,7 @@ Cas limites à chercher dans le code lu : valeur absente, vide ou faite d'espace
 
 ```bash
 cd backend && uv run pytest marmotte/<module>/tests/<fichier>.py::<Classe>::<test> -v
-uv run pytest
+uv run pytest -m "not hardware and not model and not bench"
 uv run ruff check && uv run ruff format --check && uv run pyright
 ```
 
