@@ -7,7 +7,8 @@ from pathlib import Path
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 
-from marmotte.settings import get_config_value, load_env, to_bool, to_list
+from marmotte.settings import get_config_value, load_env, prepare_environment, to_bool, to_list
+from marmotte.settings.django.paths import BACKEND_DIR
 
 VAR = "MARMOTTE_TEST_VAR"
 
@@ -20,6 +21,13 @@ def test_missing_required_value_names_the_variable(monkeypatch: pytest.MonkeyPat
 
 def test_empty_value_counts_as_missing(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(VAR, "")
+    with pytest.raises(ImproperlyConfigured, match=VAR):
+        get_config_value(VAR)
+    assert get_config_value(VAR, default="x") == "x"
+
+
+def test_blank_value_counts_as_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(VAR, "   ")
     with pytest.raises(ImproperlyConfigured, match=VAR):
         get_config_value(VAR)
     assert get_config_value(VAR, default="x") == "x"
@@ -39,6 +47,23 @@ def test_cast_error_names_the_variable(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(VAR, "maybe")
     with pytest.raises(ImproperlyConfigured, match=VAR):
         get_config_value(VAR, cast=to_bool)
+
+
+def test_any_cast_error_names_the_variable(monkeypatch: pytest.MonkeyPatch) -> None:
+    def broken_cast(value: str) -> int:
+        raise TypeError("not a number")
+
+    monkeypatch.setenv(VAR, "12")
+    with pytest.raises(ImproperlyConfigured, match=VAR):
+        get_config_value(VAR, cast=broken_cast)
+
+
+def test_list_without_items_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    with pytest.raises(ValueError):
+        to_list(" , ,")
+    monkeypatch.setenv(VAR, ",")
+    with pytest.raises(ImproperlyConfigured, match=VAR):
+        get_config_value(VAR, cast=to_list)
 
 
 def test_to_bool_accepts_true_and_false_any_case() -> None:
@@ -85,7 +110,9 @@ def test_load_env_does_nothing_when_marmotte_env_file_is_empty(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     calls: list[object] = []
-    monkeypatch.setattr("marmotte.settings.load_dotenv", lambda *args, **kwargs: calls.append(args))
+    monkeypatch.setattr(
+        "marmotte.settings.load_dotenv", lambda *args, **kwargs: calls.append((args, kwargs))
+    )
     monkeypatch.setenv("MARMOTTE_ENV_FILE", "")
     load_env()
     assert calls == []
@@ -120,4 +147,55 @@ def test_prod_refuses_to_start_without_secret_key() -> None:
         check=False,
     )
     assert result.returncode != 0
-    assert "DJANGO_SECRET_KEY" in result.stderr
+    assert "ImproperlyConfigured" in result.stderr
+    assert "DJANGO_SECRET_KEY is required" in result.stderr
+
+
+def test_prepare_environment_defaults_to_prod_settings(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DJANGO_SETTINGS_MODULE")
+    prepare_environment()
+    assert os.environ["DJANGO_SETTINGS_MODULE"] == "marmotte.settings.prod"
+
+
+def test_prepare_environment_replaces_a_blank_settings_module(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("DJANGO_SETTINGS_MODULE", " ")
+    prepare_environment()
+    assert os.environ["DJANGO_SETTINGS_MODULE"] == "marmotte.settings.prod"
+
+
+def test_prepare_environment_keeps_the_chosen_settings_module(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("DJANGO_SETTINGS_MODULE", "marmotte.settings.dev")
+    prepare_environment()
+    assert os.environ["DJANGO_SETTINGS_MODULE"] == "marmotte.settings.dev"
+
+
+def _run_without_settings_module(*args: str) -> subprocess.CompletedProcess[str]:
+    """Run Python with a key and hosts, but no settings module and no .env file."""
+    env = {key: value for key, value in os.environ.items() if key != "DJANGO_SETTINGS_MODULE"}
+    env |= {
+        "MARMOTTE_ENV_FILE": "",
+        "DJANGO_SECRET_KEY": "test-only-secret-key",
+        "DJANGO_ALLOWED_HOSTS": "localhost",
+    }
+    return subprocess.run(
+        [sys.executable, *args], env=env, capture_output=True, text=True, check=False
+    )
+
+
+PRINT_MODE = "from django.conf import settings; print(settings.SETTINGS_MODULE, settings.DEBUG)"
+
+
+def test_manage_py_runs_prod_settings_without_configuration() -> None:
+    result = _run_without_settings_module(
+        str(BACKEND_DIR / "manage.py"), "shell", "--no-imports", "-c", PRINT_MODE
+    )
+    assert result.stdout.strip() == "marmotte.settings.prod False", result.stderr
+
+
+def test_asgi_runs_prod_settings_without_configuration() -> None:
+    result = _run_without_settings_module("-c", f"import marmotte.asgi; {PRINT_MODE}")
+    assert result.stdout.strip() == "marmotte.settings.prod False", result.stderr

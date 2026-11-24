@@ -8,7 +8,7 @@ loaded by ``load_env``; on the Pi, systemd provides them.
 import os
 from collections.abc import Callable
 from pathlib import Path
-from typing import Final, overload
+from typing import Final
 
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
@@ -26,33 +26,25 @@ class _Required:
 REQUIRED: Final = _Required()
 
 
-@overload
-def get_config_value(name: str, default: str | _Required = REQUIRED) -> str: ...
-
-
-@overload
-def get_config_value[T](
-    name: str, default: str | _Required = REQUIRED, *, cast: Callable[[str], T]
-) -> T: ...
-
-
-def get_config_value[T](
-    name: str, default: str | _Required = REQUIRED, *, cast: Callable[[str], T] | None = None
-) -> str | T:
+def get_config_value[T = str](
+    name: str, default: str | _Required = REQUIRED, *, cast: Callable[[str], T] = str
+) -> T:
     """Return the environment variable ``name``, cast if asked.
 
-    An empty variable counts as missing: the default is used instead, and cast
-    too. Without a default, a missing variable stops the start-up with a clear
-    message, as does a value that cannot be cast.
+    The return type follows ``cast``: ``str`` without it, ``list[str]`` with
+    ``cast=to_list``, ``Path`` with ``cast=Path``…
+
+    An empty or blank variable counts as missing: the default is used instead,
+    and cast too. Without a default, a missing variable stops the start-up with a
+    clear message, as does a value that cannot be cast.
     """
-    raw = os.environ.get(name) or default
+    value = os.environ.get(name, "")
+    raw = value if value.strip() else default
     if isinstance(raw, _Required):
         raise ImproperlyConfigured(f"The environment variable {name} is required but not set.")
-    if cast is None:
-        return raw
     try:
         return cast(raw)
-    except ValueError as error:
+    except Exception as error:
         raise ImproperlyConfigured(
             f"The environment variable {name} is invalid: {error}"
         ) from error
@@ -70,8 +62,14 @@ def to_bool(value: str) -> bool:
 
 
 def to_list(value: str, separator: str = ",") -> list[str]:
-    """Split ``value`` on ``separator``, without surrounding spaces nor empty items."""
-    return [item.strip() for item in value.split(separator) if item.strip()]
+    """Split ``value`` on ``separator``, without surrounding spaces nor empty items.
+
+    A value that is not blank but holds no item at all (``","``) is refused.
+    """
+    items = [item.strip() for item in value.split(separator) if item.strip()]
+    if value.strip() and not items:
+        raise ValueError(f'no item in "{value}"')
+    return items
 
 
 def load_env(path: Path | None = None) -> None:
@@ -87,3 +85,14 @@ def load_env(path: Path | None = None) -> None:
             return
         path = Path(configured) if configured else BACKEND_DIR / ".env"
     load_dotenv(path, override=False)
+
+
+def prepare_environment() -> None:
+    """Prepare the environment of a Marmotte program, before Django starts.
+
+    Loads the ``.env`` file (it may choose the settings module), then falls back
+    to the production settings when no settings module is chosen, or a blank one.
+    """
+    load_env()
+    if not os.environ.get("DJANGO_SETTINGS_MODULE", "").strip():
+        os.environ["DJANGO_SETTINGS_MODULE"] = "marmotte.settings.prod"

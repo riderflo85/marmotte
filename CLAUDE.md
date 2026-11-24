@@ -66,7 +66,7 @@ Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-d
 ## Pièges connus
 
 - Une variable lue par les réglages pendant les tests se fixe dans `env` de pytest-env (`backend/pyproject.toml`), pas dans un `conftest.py` : pytest-django charge les réglages avant les `conftest.py`.
-- uv ne charge pas le `.env` tout seul : c'est `load_env()` (`marmotte/settings/__init__.py`) qui le fait, dans `manage.py`, `asgi.py` et `settings/base.py`.
+- uv ne charge pas le `.env` tout seul : c'est `load_env()` (`marmotte/settings/__init__.py`) qui le fait, appelé par `settings/base.py` et par `prepare_environment()`. Tout programme Marmotte (`manage.py`, `asgi.py`, futurs services) appelle `prepare_environment()` avant Django : elle charge le `.env` puis choisit `marmotte.settings.prod` si aucun mode n'est donné.
 - Un serveur lancé en arrière-plan pour un essai : `curl --max-time`, et un port libre (le 8000 peut être pris par un autre programme, `curl` attend alors sans fin).
 
 ## Faire évoluer ce fichier
