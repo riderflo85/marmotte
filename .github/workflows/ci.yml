@@ -41,6 +41,55 @@ jobs:
       - run: uv run pyright . ../scripts
       - run: uv run pytest -m "not hardware and not model and not bench"
 
+  # Banc de la détection avec le vrai modèle YAMNet (D81, P67) : un échec bloque la fusion.
+  detection:
+    name: detection (${{ matrix.runner }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # Le job tourne toujours, pour qu'un contrôle requis ait un résultat ; le banc ne tourne que si
+      # la détection, le banc, le modèle ou les dépendances changent (toujours sur main).
+      - name: Fichiers de la détection modifiés ?
+        id: changes
+        working-directory: .
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          pattern='^(backend/(marmotte/(detection|common)/|bench/|models/|uv\.lock)|\.github/workflows/ci\.yml)'
+          if [ -z "$BASE_SHA" ] || git diff --name-only "$BASE_SHA" HEAD | grep -qE "$pattern"; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.changes.outputs.run == 'true'
+        uses: astral-sh/setup-uv@v10.4.0
+        with:
+          working-directory: backend
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - if: steps.changes.outputs.run == 'true'
+        run: uv sync --locked
+      # Le modèle (environ 4 Mo) est gardé en cache tant que models.toml (adresse, empreinte) ne change pas.
+      - if: steps.changes.outputs.run == 'true'
+        uses: actions/cache@v6
+        with:
+          path: backend/models/yamnet.tflite
+          key: yamnet-${{ hashFiles('backend/models/models.toml') }}
+      # Télécharge le modèle s'il manque et vérifie son empreinte SHA-256 dans tous les cas.
+      - if: steps.changes.outputs.run == 'true'
+        run: uv run python -c "from marmotte.detection.model_files import DEFAULT_MODELS_DIR, ensure_yamnet; ensure_yamnet(DEFAULT_MODELS_DIR)"
+      - if: steps.changes.outputs.run == 'true'
+        run: uv run pytest -m "model or bench"
+
   frontend:
     name: frontend
     runs-on: ubuntu-24.04
