@@ -1,13 +1,20 @@
+import itertools
 from datetime import UTC
 from datetime import datetime
 from datetime import timedelta
 
 import numpy as np
+import pytest
 
 from marmotte.common.enums import Mode
 from marmotte.common.enums import SoundClass
+from marmotte.detection.bench.manifest import BENCH_DIR
+from marmotte.detection.bench.runner import load_audio
 from marmotte.detection.classifier import Classifier
+from marmotte.detection.classifier import YamnetClassifier
 from marmotte.detection.level import rms_dbfs
+from marmotte.detection.model_files import DEFAULT_MODELS_DIR
+from marmotte.detection.model_files import ensure_yamnet
 from marmotte.detection.pipeline import DetectionConfig
 from marmotte.detection.pipeline import DetectionPipeline
 from marmotte.detection.tests.fakes import FakeClassifier
@@ -30,6 +37,10 @@ def noise(seconds: float, dbfs: float, seed: int = 0) -> Audio:
 def pipeline(mode: Mode, classifier: Classifier) -> DetectionPipeline:
     """A pipeline with the default configuration and a fixed mode."""
     return DetectionPipeline(classifier, DetectionConfig(), lambda: mode, lambda: START)
+
+
+def _yamnet() -> YamnetClassifier:
+    return YamnetClassifier(ensure_yamnet(DEFAULT_MODELS_DIR))
 
 
 def feed_all(p: DetectionPipeline, audio: Audio) -> list[AlertEvent]:
@@ -78,10 +89,13 @@ class TestDetectionPipeline:
         assert len(alerts) == 1
 
     def test_no_alert_outside_sieste(self) -> None:
-        """In silent monitoring, neither the model nor the scream net alerts."""
+        """In silent monitoring, neither the sliding window nor the scream net alerts."""
         # GIVEN
-        p = pipeline(Mode.SILENT, loud_is_cry(-45))
-        audio = np.concatenate([noise(20, -55), noise(15, -10, seed=1)])
+        classifier = FakeClassifier(
+            lambda window: {SoundClass.SCREAM: 0.8} if rms_dbfs(window) > -15 else {SoundClass.CRY: 0.9}
+        )
+        p = pipeline(Mode.SILENT, classifier)
+        audio = np.concatenate([noise(20, -55), noise(15, -35, seed=1), noise(5, -10, seed=2)])
         # WHEN
         alerts = feed_all(p, audio)
         # THEN
@@ -151,24 +165,29 @@ class TestDetectionPipeline:
         assert [alert.kind for alert in alerts] == [SoundClass.CRY]
         assert np.isfinite(p.stats.floor_db)
 
-    def test_door_slam_does_not_alert(self) -> None:
-        """Review Focus 2: a 0.3 s very loud sound does not alert."""
+    def test_continuous_cry_alerts_once_per_pause(self) -> None:
+        """F-21: a cry of more than 2 minutes gives a first alert, then one per pause."""
         # GIVEN
-        p = pipeline(Mode.SIESTE, silent())
-        audio = np.concatenate([noise(20, -55), noise(0.3, -3, seed=1), noise(10, -55, seed=2)])
+        p = pipeline(Mode.SIESTE, loud_is_cry(-45))
+        audio = np.concatenate([noise(20, -55), noise(125, -35, seed=1)])
         # WHEN
         alerts = feed_all(p, audio)
         # THEN
-        assert alerts == []
+        offsets = [alert.offset_s for alert in alerts]
+        assert len(offsets) == 3
+        assert all(60.0 <= later - earlier <= 61.0 for earlier, later in itertools.pairwise(offsets))
 
-    def test_loud_party_from_start_does_not_trigger_scream_net(self) -> None:
-        """Review Focus 3: loud music from the start becomes the floor, without a scream alert."""
+    def test_slow_micro_drift_does_not_raise_the_floor(self) -> None:
+        """Review Focus 6: a 1.5 Hz drift at -50 dBFS is filtered out; the floor stays at the hiss (-68 dBFS)."""
         # GIVEN
         p = pipeline(Mode.SIESTE, silent())
+        t = np.arange(16_000 * 30) / 16_000
+        drift = 10 ** (-50 / 20) * np.sqrt(2) * np.sin(2 * np.pi * 1.5 * t)
+        audio = (noise(30, -68) + drift).astype(np.float32)
         # WHEN
-        alerts = feed_all(p, noise(60, -20))
+        feed_all(p, audio)
         # THEN
-        assert alerts == []
+        assert p.stats.floor_db == pytest.approx(-68.0, abs=2.0)
 
     def test_cry_6_db_over_loud_music_still_alerts(self) -> None:
         """Review Focus 4: a cry 6 dB above loud music still alerts."""
@@ -213,3 +232,28 @@ class TestDetectionPipeline:
             odd += p.feed(audio[start : start + 1_000])
         # THEN
         assert [(a.kind, a.offset_s) for a in odd] == [(a.kind, a.offset_s) for a in by_hop]
+
+
+@pytest.mark.model
+class TestDetectionPipelineWithYamnet:
+    def test_door_slam_does_not_alert(self) -> None:
+        """Review Focus 2: a 0.3 s very loud bang in a quiet room does not alert."""
+        # GIVEN
+        p = DetectionPipeline(_yamnet(), DetectionConfig(), lambda: Mode.SIESTE, lambda: START)
+        room = load_audio(BENCH_DIR / "clips" / "background-room-427838.flac")
+        bang = noise(0.3, -3, seed=1) * np.exp(-np.arange(4_800) / 800).astype(np.float32)
+        audio = np.concatenate([room[: 16_000 * 20], bang, room[16_000 * 20 : 16_000 * 30]])
+        # WHEN
+        alerts = feed_all(p, audio)
+        # THEN
+        assert alerts == []
+
+    def test_loud_party_from_start_does_not_alert(self) -> None:
+        """Review Focus 3: a loud party from the start becomes the floor, without any alert."""
+        # GIVEN
+        p = DetectionPipeline(_yamnet(), DetectionConfig(), lambda: Mode.SIESTE, lambda: START)
+        party = load_audio(BENCH_DIR / "clips" / "background-party-207994.flac")
+        # WHEN
+        alerts = feed_all(p, party)
+        # THEN
+        assert alerts == []
