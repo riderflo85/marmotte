@@ -7,8 +7,10 @@ import numpy as np
 from marmotte.common.enums import Mode
 from marmotte.common.enums import SoundClass
 from marmotte.detection.classifier import Classifier
+from marmotte.detection.level import rms_dbfs
 from marmotte.detection.pipeline import DetectionConfig
 from marmotte.detection.pipeline import DetectionPipeline
+from marmotte.detection.tests.fakes import FakeClassifier
 from marmotte.detection.tests.fakes import loud_is_cry
 from marmotte.detection.tests.fakes import silent
 from marmotte.detection.types import HOP
@@ -40,7 +42,7 @@ def feed_all(p: DetectionPipeline, audio: Audio) -> list[AlertEvent]:
 
 class TestDetectionPipeline:
     def test_cry_alert_within_8_s_of_onset(self) -> None:
-        """A cry 20 dB above the floor (under the scream margin) alerts within 8 s, as a cry."""
+        """A cry 20 dB above the floor alerts within 8 s, as a cry."""
         # GIVEN
         p = pipeline(Mode.SIESTE, loud_is_cry(-45))
         audio = np.concatenate([noise(20, -55), noise(15, -35, seed=1)])
@@ -83,18 +85,32 @@ class TestDetectionPipeline:
         # THEN
         assert classifier.calls == 0
 
-    def test_very_loud_sound_alerts_through_scream_net(self) -> None:
-        """A sound 45 dB above the floor for seconds alerts, even if the model hears nothing."""
+    def test_very_loud_unrecognized_sound_does_not_alert(self) -> None:
+        """A sound 45 dB above the floor that the model does not recognize gives no alert (bench, 2026-11-25)."""
         # GIVEN
         p = pipeline(Mode.SIESTE, silent())
         audio = np.concatenate([noise(20, -55), noise(5, -10, seed=1)])
         # WHEN
         alerts = feed_all(p, audio)
         # THEN
-        assert len(alerts) == 1
-        assert alerts[0].kind == SoundClass.SCREAM
-        assert alerts[0].via_scream_net
-        assert 20.0 <= alerts[0].offset_s <= 22.0
+        assert alerts == []
+
+    def test_recognized_scream_alerts_through_scream_net_during_pause(self) -> None:
+        """A scream recognized by the model alerts even in the pause that follows a cry alert."""
+        # GIVEN
+        classifier = FakeClassifier(
+            lambda window: {SoundClass.SCREAM: 0.8} if rms_dbfs(window) > -15 else {SoundClass.CRY: 0.9}
+        )
+        p = pipeline(Mode.SIESTE, classifier)
+        audio = np.concatenate([noise(20, -55), noise(15, -35, seed=1), noise(5, -10, seed=2)])
+        # WHEN
+        alerts = feed_all(p, audio)
+        # THEN
+        assert [(alert.kind, alert.via_scream_net) for alert in alerts] == [
+            (SoundClass.CRY, False),
+            (SoundClass.SCREAM, True),
+        ]
+        assert 35.0 <= alerts[1].offset_s <= 37.0
 
     def test_door_slam_does_not_alert(self) -> None:
         """Review Focus 2: a 0.3 s very loud sound does not alert."""

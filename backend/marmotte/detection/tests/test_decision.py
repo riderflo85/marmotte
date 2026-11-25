@@ -63,46 +63,32 @@ class TestSlidingWindowDecider:
 
 
 class TestScreamNet:
-    def test_fires_after_one_second_far_above_floor(self) -> None:
-        """30 dB above the floor for one second fires, whatever the model says."""
-        # GIVEN
-        net = ScreamNet()
-        # WHEN
-        fired = [net.push(-20.0, -50.0, 0.0, HOP_S) for _ in range(3)]
-        # THEN
-        assert fired == [False, False, True]
-
-    def test_short_loud_sound_does_not_fire(self) -> None:
-        """A loud sound interrupted before one second starts counting again."""
-        # GIVEN
-        net = ScreamNet()
-        # WHEN
-        fired = [
-            net.push(-20.0, -50.0, 0.0, HOP_S),
-            net.push(-20.0, -50.0, 0.0, HOP_S),
-            net.push(-49.0, -50.0, 0.0, HOP_S),
-            net.push(-20.0, -50.0, 0.0, HOP_S),
-        ]
-        # THEN
-        assert not any(fired)
-
     def test_fires_at_once_on_scream_score(self) -> None:
-        """A scream recognized by the model fires at once, even not far above the floor."""
+        """A scream recognized by the model fires at once."""
         # GIVEN
         net = ScreamNet()
         # WHEN
-        fired = net.push(-40.0, -50.0, 0.8, HOP_S)
+        fired = net.push(0.8)
         # THEN
         assert fired
 
-    def test_fires_once_per_episode(self) -> None:
-        """A long scream fires once; back under the margin, the net is armed again."""
+    def test_ignores_scores_below_threshold(self) -> None:
+        """A weak scream score does not fire."""
         # GIVEN
         net = ScreamNet()
         # WHEN
-        first_episode = [net.push(-20.0, -50.0, 0.0, HOP_S) for _ in range(10)]
-        net.push(-48.0, -50.0, 0.0, HOP_S)
-        second_episode = [net.push(-20.0, -50.0, 0.0, HOP_S) for _ in range(3)]
+        fired = [net.push(0.4) for _ in range(10)]
+        # THEN
+        assert not any(fired)
+
+    def test_fires_once_per_episode(self) -> None:
+        """A long scream fires once; once the score falls back, the net is armed again."""
+        # GIVEN
+        net = ScreamNet()
+        # WHEN
+        first_episode = [net.push(0.8) for _ in range(10)]
+        net.push(0.1)
+        second_episode = [net.push(0.8) for _ in range(3)]
         # THEN
         assert first_episode.count(True) == 1
         assert second_episode.count(True) == 1
@@ -122,6 +108,20 @@ class TestAntiBurst:
         ]
         # THEN
         assert allowed == [True, False, True, True]
+
+    def test_scream_net_alerts_have_their_own_pause(self) -> None:
+        """A scream net alert passes the cry pause, but does not ring again within its own pause."""
+        # GIVEN
+        anti_burst = AntiBurst(pause_s=60.0)
+        # WHEN
+        allowed = [
+            anti_burst.allow(0.0, via_scream_net=True),
+            anti_burst.allow(10.0, via_scream_net=False),
+            anti_burst.allow(30.0, via_scream_net=True),
+            anti_burst.allow(61.0, via_scream_net=True),
+        ]
+        # THEN
+        assert allowed == [True, True, False, True]
 
     def test_pause_counts_from_last_allowed_alert(self) -> None:
         """A blocked alert does not restart the pause."""

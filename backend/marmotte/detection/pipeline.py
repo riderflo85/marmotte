@@ -41,7 +41,6 @@ class DetectionConfig:
     n: int = 4
     k: int = 2
     sensitivity: Sensitivity = Sensitivity.MEDIUM
-    scream_margin_db: float = 25.0
     pause_s: float = 60.0
 
 
@@ -75,7 +74,7 @@ class DetectionPipeline:
         self._floor = NoiseFloor()
         self._mic = MicHealth()
         self._decider = SlidingWindowDecider(THRESHOLDS[config.sensitivity], n=config.n, k=config.k)
-        self._scream_net = ScreamNet(margin_db=config.scream_margin_db)
+        self._scream_net = ScreamNet()
         self._anti_burst = AntiBurst(pause_s=config.pause_s)
 
     @property
@@ -109,7 +108,7 @@ class DetectionPipeline:
         if any(self._gate) and len(self._hops) == _HOPS_PER_WINDOW:
             scores = dict(self._classifier.scores(np.concatenate(self._hops)))
         decision = self._decider.push(scores)
-        scream = self._scream_net.push(level_db, floor_db, scores.get(SoundClass.SCREAM, 0.0), HOP_S)
+        scream = self._scream_net.push(scores.get(SoundClass.SCREAM, 0.0))
 
         if self._mode_provider() is not Mode.SIESTE:
             return None

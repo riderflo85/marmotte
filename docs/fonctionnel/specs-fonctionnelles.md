@@ -125,6 +125,7 @@ Un pleur qui dure est notifié **au plus environ 8 secondes après son début**.
 
 **F-20 Hurlement** (D25, P16, P17)
 Un **hurlement n'est jamais raté**, même au prix d'une fausse alerte : une alerte part si le son dépasse **nettement le bruit de fond** pendant environ une seconde, ou si l'IA reconnaît un cri. Il **passe outre la pause anti-rafale**. Le seuil est relatif au bruit de fond du lieu, pour ne pas sonner sans arrêt en salle des fêtes.
+*Amendé le 2026-11-25 (banc d'essai, lot 2)* : l'alerte ne part plus que si l'IA reconnaît un cri. Sur le niveau seul, elle donnait des dizaines de fausses alertes par sieste (toux, casseroles, musique). Elle garde sa propre pause, pour ne pas sonner à chaque respiration d'un long cri.
 *Critère* : un cri fort déclenche une alerte même pendant la pause anti-rafale.
 
 **F-21 Pas de rafale** (P12)

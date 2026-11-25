@@ -235,7 +235,7 @@ flowchart TB
     A["Micro partagé<br/>mono, 16 kHz"] --> B{"Premier étage :<br/>volume au-dessus<br/>du bruit de fond ?"}
     B -- non --> A
     B -- oui --> C["YAMNet (LiteRT)<br/>tranches de 0,975 s"]
-    B -- "nettement au-dessus<br/>pendant ~1 s" --> H["Filet « hurlement »"]
+    C -- "cri reconnu<br/>(« Screaming »)" --> H["Filet « hurlement »"]
     C --> E{"Fenêtre glissante :<br/>assez de tranches<br/>« voix de bébé » ?"}
     E -- oui --> F{"Mode Sieste ?<br/>Pause anti-rafale ?"}
     H --> F
@@ -248,6 +248,7 @@ flowchart TB
 3. **YAMNet** avec **LiteRT** (`ai-edge-litert`), sur des tranches de 15 600 échantillons (0,975 s). Catégories retenues (P10) : « Baby cry, infant cry », « Whimper », « Babbling », « Baby laughter », et « Screaming » pour le filet (P16). Les bruits d'objets ne déclenchent rien.
 4. **Fenêtre glissante** (P18) : décision sur plusieurs tranches récentes (ex. 2 tranches « pleur » sur les 4 dernières), pour tenir les **~8 secondes** entre le début d'un pleur qui dure et l'envoi de la notification (D24).
 5. **Filet « hurlement »** (P16, P17) : une alerte part, quelle que soit la réponse de l'IA, si le son dépasse **nettement** le bruit de fond pendant environ une seconde, ou si YAMNet reconnaît un cri. Il passe outre la pause anti-rafale.
+   *Amendé le 2026-11-25 (banc d'essai, lot 2)* : le filet ne part plus que si YAMNet reconnaît un cri (« Screaming »). Sur le niveau seul, il donnait 27 à 160 fausses alertes par 2 heures de bruits de fond (toux, casseroles, musique), quel que soit le réglage, contre une au plus visée (§ 8.2.1). Un cri que YAMNet ne reconnaît pas n'est plus rattrapé par le filet : 2 cris sur 8 du banc. Il garde sa propre pause, pour ne pas sonner à chaque respiration d'un long cri.
 6. **Sensibilité réglable** dans l'app (P13), qui agit sur les seuils.
 7. **Mode** : notifications seulement en **Sieste** (D29). En Surveillance silencieuse, ni alerte ni filet (P23).
 8. **Pas de rafale** (P12) : une notification, puis une pause réglable avant la suivante.
