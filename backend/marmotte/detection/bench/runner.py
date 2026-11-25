@@ -26,16 +26,22 @@ from marmotte.detection.types import SAMPLE_RATE
 from marmotte.detection.types import Audio
 
 LONG_CRY_S = 8.0
+"""A cry longer than this must never be missed (D81)."""
 DETECTION_BUDGET_S = 8.0
+"""Delay allowed between the onset of a long cry and its alert (D24)."""
 LEAD_S = 10.0
 """Quiet room before each baby sound: the noise floor settles (the 30 s countdown does it in real life)."""
 TAIL_S = 5.0
+"""Quiet room after each baby sound: an alert decided just after the sound still counts."""
 BACKGROUND_TARGET_S = 7_200.0
+"""Seconds of backgrounds to replay: false alerts are measured on at least 2 hours (D81)."""
 GAIN_RANGE_DB = 6.0
+"""Each background is replayed with a random gain within ± this value."""
 BENCH_TIME = datetime(2026, 1, 1, tzinfo=UTC)
 """Time given by the clock of the bench pipelines: reproducible alerts."""
 
 type PipelineFactory = Callable[[Callable[[], Mode], DetectionConfig], DetectionPipeline]
+"""Build a fresh pipeline from a mode provider and settings."""
 
 
 def missed_long_cries(
@@ -64,13 +70,21 @@ class BenchReport:
     """Results of the bench, and the D81 targets."""
 
     long_cries: int
+    """Cries longer than `LONG_CRY_S` in the baby sounds."""
     missed_long_cries: int
+    """Long cries with no alert within `DETECTION_BUDGET_S` of their onset."""
     false_alerts: int
+    """Alerts during the backgrounds."""
     background_s: float
+    """Seconds of backgrounds replayed."""
     false_alerts_per_2h: float
+    """False alerts scaled to a two-hour nap."""
     recall_by_label: dict[str, float]
+    """Share of the baby sounds of each label with at least one alert."""
     missed_clips: list[str] = field(default_factory=list)
+    """Cry files with a missed long cry."""
     false_alert_details: list[str] = field(default_factory=list)
+    """One line per false alert: file, kind and time in the background stream."""
 
     def meets_targets(self) -> bool:
         """D81: no long cry missed, at most one false alert per two hours, measured on enough sound."""

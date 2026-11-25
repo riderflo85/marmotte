@@ -29,7 +29,9 @@ from marmotte.detection.types import AlertEvent
 from marmotte.detection.types import Audio
 
 HOP_S = HOP / SAMPLE_RATE
+"""Duration of a hop, in seconds."""
 _HOPS_PER_WINDOW = WINDOW // HOP
+"""Hops in a model slice (2)."""
 
 
 @dataclass(frozen=True)
@@ -39,9 +41,13 @@ class DetectionConfig:
     gate_margin_db: float = 3.0
     """The model runs when a hop of the slice is this far above the noise floor."""
     n: int = 6
+    """Size of the sliding window: the last `n` slices."""
     k: int = 3
+    """Slices of the window that must reach the threshold for a baby category."""
     sensitivity: Sensitivity = Sensitivity.MEDIUM
+    """Chooses the score threshold of a slice (`THRESHOLDS`)."""
     pause_s: float = 60.0
+    """Anti-burst pause, in seconds: no other cry alert until it is over."""
 
 
 @dataclass(frozen=True)
@@ -49,9 +55,13 @@ class PipelineStats:
     """State of the chain, for monitoring."""
 
     level_db: float
+    """Level of the last hop after the high-pass filter, in dBFS."""
     floor_db: float
+    """Noise floor, in dBFS."""
     mic_silent: bool
+    """True after 10 s of digital silence: the micro is probably unplugged."""
     last_alert: AlertEvent | None
+    """Last alert sent, if any."""
 
 
 class DetectionPipeline:

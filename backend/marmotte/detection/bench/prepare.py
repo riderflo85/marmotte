@@ -23,6 +23,7 @@ Les sons CC0 n'exigent pas de crédit : ils sont listés pour la traçabilité. 
 | Fichier | Son d'origine | Auteur | Licence | Modification |
 |---|---|---|---|---|
 """
+"""Start of `CREDITS.md`, written when the bench has no credits file yet."""
 
 
 def parse_segments(text: str) -> list[tuple[float, float]]:

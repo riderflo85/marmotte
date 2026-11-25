@@ -26,6 +26,7 @@ from marmotte.detection.service import run
 from marmotte.detection.sinks import JsonLinesSink
 
 STATS_EVERY_S = 10.0
+"""Seconds of sound between two stats lines in the log."""
 
 
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:

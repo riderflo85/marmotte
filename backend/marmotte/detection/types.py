@@ -25,8 +25,12 @@ class AlertEvent:
     """An alert decided by the detection chain."""
 
     id: UUID
+    """Unique identifier, written with the notification before it is sent (P73)."""
     kind: SoundClass
+    """Category heard; `scream` for an alert of the scream net."""
     at: datetime
+    """Time of the decision, read on the clock of the pipeline."""
     offset_s: float
     """Position in the audio stream, in seconds."""
     via_scream_net: bool
+    """True when the scream net sent it, past the anti-burst pause of cries."""

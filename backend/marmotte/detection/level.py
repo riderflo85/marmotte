@@ -13,6 +13,7 @@ SILENCE_DB = -120.0
 """Level given to digital silence, instead of minus infinity."""
 
 _WARMUP_TAU_S = 1.0
+"""Time constant of the noise floor during its warm-up: it follows the room quickly."""
 
 
 def rms_dbfs(frame: Audio) -> float:

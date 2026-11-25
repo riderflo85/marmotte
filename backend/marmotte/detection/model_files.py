@@ -13,6 +13,7 @@ DEFAULT_MODELS_DIR = Path(__file__).resolve().parents[2] / "models"
 """`backend/models/`: models.toml and the downloaded model files."""
 
 _DOWNLOAD_TIMEOUT_S = 60
+"""Seconds without an answer before a model download gives up."""
 
 
 class ModelChecksumError(Exception):
