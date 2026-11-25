@@ -4,6 +4,7 @@ from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
 from dataclasses import field
+from dataclasses import replace
 from datetime import UTC
 from datetime import datetime
 from functools import cache
@@ -34,7 +35,7 @@ GAIN_RANGE_DB = 6.0
 BENCH_START = datetime(2026, 1, 1, tzinfo=UTC)
 """Fixed start: reproducible alert times."""
 
-type PipelineFactory = Callable[[Callable[[], Mode]], DetectionPipeline]
+type PipelineFactory = Callable[[Callable[[], Mode], DetectionConfig], DetectionPipeline]
 
 
 def missed_long_cries(
@@ -43,18 +44,13 @@ def missed_long_cries(
     shift_s: float,
     long_s: float = LONG_CRY_S,
     budget_s: float = DETECTION_BUDGET_S,
-    pause_s: float = 0.0,
 ) -> tuple[int, int]:
     """Count the cries longer than `long_s`, and those with no alert within `budget_s` of their onset.
 
-    An alert less than `pause_s` before the onset counts too: the parent was just notified, and the
-    anti-burst pause holds the next alert back on purpose.
     Segments are relative to the clip, which starts `shift_s` seconds into the stream.
     """
     long_cries = [(start + shift_s, end + shift_s) for start, end in segments if end - start > long_s]
-    missed = sum(
-        not any(onset - pause_s <= offset <= onset + budget_s for offset in alert_offsets) for onset, _ in long_cries
-    )
+    missed = sum(not any(onset <= offset <= onset + budget_s for offset in alert_offsets) for onset, _ in long_cries)
     return len(long_cries), missed
 
 
@@ -115,8 +111,15 @@ def _sieste() -> Mode:
     return Mode.SIESTE
 
 
-def run_bench(clips: list[Clip], make_pipeline: PipelineFactory, seed: int = 42) -> BenchReport:
-    """Replay each baby sound between quiet room sounds, then at least two hours of backgrounds."""
+def run_bench(
+    clips: list[Clip], make_pipeline: PipelineFactory, seed: int = 42, config: DetectionConfig | None = None
+) -> BenchReport:
+    """Replay each baby sound between quiet room sounds, then at least two hours of backgrounds.
+
+    Baby sounds are replayed without the anti-burst pause, so that each long cry must be detected on
+    its own; backgrounds are replayed with the settings as they run in real life.
+    """
+    config = config or DetectionConfig()
     rng = np.random.default_rng(seed)
     rooms = [clip for clip in clips if clip.label == "background" and "room" in clip.tags]
     babies = [clip for clip in clips if clip.label in BABY_LABELS]
@@ -131,12 +134,13 @@ def run_bench(clips: list[Clip], make_pipeline: PipelineFactory, seed: int = 42)
     for clip in babies:
         padding = np.resize(load_audio(rooms[rng.integers(len(rooms))].file), lead + int(TAIL_S * SAMPLE_RATE))
         audio = load_audio(clip.file)
-        pipeline = make_pipeline(_sieste)
+        # Without the anti-burst pause: an earlier alert must not hide a long cry the chain misses.
+        pipeline = make_pipeline(_sieste, replace(config, pause_s=0.0))
         offsets = [alert.offset_s for alert in pipeline.feed(np.concatenate([padding[:lead], audio, padding[lead:]]))]
         end_s = LEAD_S + len(audio) / SAMPLE_RATE + TAIL_S
         detected[clip.label].append(any(LEAD_S <= offset <= end_s for offset in offsets))
         if clip.label == "cry":
-            n_long, n_missed = missed_long_cries(list(clip.segments), offsets, LEAD_S, pause_s=pipeline.config.pause_s)
+            n_long, n_missed = missed_long_cries(list(clip.segments), offsets, LEAD_S)
             long_cries += n_long
             missed += n_missed
             if n_missed:
@@ -146,7 +150,7 @@ def run_bench(clips: list[Clip], make_pipeline: PipelineFactory, seed: int = 42)
     details: list[str] = []
     background_s = 0.0
     if backgrounds:
-        pipeline = make_pipeline(_sieste)
+        pipeline = make_pipeline(_sieste, config)
         while background_s < BACKGROUND_TARGET_S:
             for index in rng.permutation(len(backgrounds)):
                 clip = backgrounds[index]
