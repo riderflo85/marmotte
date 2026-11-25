@@ -18,6 +18,8 @@ Python est installé et géré par **uv** (version figée dans `backend/.python-
 | Installer le front | `cd frontend && npm ci` |
 | Front | `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run format:check`, `npx vitest --run`, `npm run build` (dans `frontend/`) |
 | Tout le lint, tous les tests | `just lint`, `just test` |
+| Détection des pleurs | `cd backend && uv run python -m marmotte.detection --wav <fichier>` (ou `--alsa micro` sur le Pi) |
+| Banc de la détection | `cd backend && uv run python -m marmotte.detection.bench run`, tests `uv run pytest -m "model or bench"` |
 | Hooks pre-commit | `uvx pre-commit install` (une fois : contrôles avant le commit, pré-remplissage et contrôle du message), `uvx pre-commit run --all-files` |
 | Déployer sur le Pi de dev | `just deploy` (par défaut `marmotte-dev.local`, clé `~/.ssh/id_ed25519_raspi`), `just deploy <hôte>`, `just deploy <hôte> <clé ssh>` : arguments dans l'ordre, sans `nom=` (`host=x` serait pris comme nom d'hôte) |
 
