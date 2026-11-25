@@ -40,11 +40,12 @@ def ensure_yamnet(models_dir: Path) -> Path:
         return path
     partial = path.with_name(f"{path.name}.part")
     logger.info("Downloading %s from %s", path.name, spec["url"])
-    _download(spec["url"], partial)
     try:
+        _download(spec["url"], partial)
         _check_sha256(partial, spec["sha256"])
-    except ModelChecksumError:
-        partial.unlink()
+    except BaseException:
+        # A cut download or a wrong file is never left behind (Ctrl+C included).
+        partial.unlink(missing_ok=True)
         raise
     partial.replace(path)
     return path

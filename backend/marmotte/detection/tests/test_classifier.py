@@ -106,6 +106,23 @@ class TestEnsureYamnet:
         with pytest.raises(ModelChecksumError):
             ensure_yamnet(tmp_path)
         assert not (tmp_path / "yamnet.tflite").exists()
+        assert not (tmp_path / "yamnet.tflite.part").exists()
+
+    def test_cut_download_leaves_no_partial_file(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """A download cut by a network error leaves neither the model nor its partial file."""
+        # GIVEN
+        _write_models_toml(tmp_path, hashlib.sha256(MODEL_BYTES).hexdigest())
+
+        def cut_download(url: str, destination: Path) -> None:
+            destination.write_bytes(MODEL_BYTES[:5])
+            raise OSError("connection reset")
+
+        monkeypatch.setattr(model_files, "_download", cut_download)
+        # WHEN / THEN
+        with pytest.raises(OSError, match="connection reset"):
+            ensure_yamnet(tmp_path)
+        assert not (tmp_path / "yamnet.tflite").exists()
+        assert not (tmp_path / "yamnet.tflite.part").exists()
 
     def test_rejects_altered_local_model(self, tmp_path: Path) -> None:
         """A model already on disk is checked too, without downloading."""
