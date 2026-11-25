@@ -1,6 +1,7 @@
 # Crédits des sons
 
-Sons sous licence libre (CC0 ou CC BY) utilisés par les tests et le banc d'essai de la détection. Les sons CC0 n'exigent pas de crédit : ils sont listés pour la traçabilité.
+Sons sous licence libre (CC0 ou CC BY) utilisés par les tests et le banc d'essai de la détection.
+Les sons CC0 n'exigent pas de crédit : ils sont listés pour la traçabilité. Chemins relatifs à `backend/`.
 
 | Fichier | Son d'origine | Auteur | Licence | Modification |
 |---|---|---|---|---|

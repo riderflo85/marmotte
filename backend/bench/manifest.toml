@@ -1,0 +1,5 @@
+# Bench of the cry detection (D81): CC0 and CC BY sounds only, credited in CREDITS.md.
+# Add a sound with: uv run python -m marmotte.detection.bench prepare INPUT --label … --source … --author … --license …
+# Each [[clip]]: file (relative to this file), label (cry, whimper, babble, laugh, scream, background),
+# tags (backgrounds: "room" for a quiet room, "music", "tv"…), source, author, license,
+# segments ([start, end] in seconds of each crying episode; pauses shorter than 3 s belong to the episode).
