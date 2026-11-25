@@ -32,8 +32,8 @@ LEAD_S = 10.0
 TAIL_S = 5.0
 BACKGROUND_TARGET_S = 7_200.0
 GAIN_RANGE_DB = 6.0
-BENCH_START = datetime(2026, 1, 1, tzinfo=UTC)
-"""Fixed start: reproducible alert times."""
+BENCH_TIME = datetime(2026, 1, 1, tzinfo=UTC)
+"""Time given by the clock of the bench pipelines: reproducible alerts."""
 
 type PipelineFactory = Callable[[Callable[[], Mode], DetectionConfig], DetectionPipeline]
 
@@ -103,8 +103,8 @@ def _yamnet_classifier() -> YamnetClassifier:
 
 
 def make_yamnet_pipeline(mode_provider: Callable[[], Mode], config: DetectionConfig | None = None) -> DetectionPipeline:
-    """A pipeline with the real YAMNet (loaded once) and a fixed start time."""
-    return DetectionPipeline(_yamnet_classifier(), config or DetectionConfig(), mode_provider, BENCH_START)
+    """A pipeline with the real YAMNet (loaded once) and a fixed clock."""
+    return DetectionPipeline(_yamnet_classifier(), config or DetectionConfig(), mode_provider, lambda: BENCH_TIME)
 
 
 def _sieste() -> Mode:

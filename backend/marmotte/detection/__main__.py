@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> int:
         YamnetClassifier(ensure_yamnet(args.models_dir)),
         DetectionConfig(sensitivity=Sensitivity(args.sensitivity)),
         lambda: Mode.SIESTE,
-        datetime.now(UTC),
+        lambda: datetime.now(UTC),
     )
     # Ctrl+C stops listening without a traceback.
     with contextlib.suppress(KeyboardInterrupt):

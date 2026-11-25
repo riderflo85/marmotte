@@ -59,7 +59,7 @@ def _fake_pipeline_factory(
     """Pipelines whose classifier calls any slice louder than the threshold a cry."""
 
     def make(mode_provider: Callable[[], Mode], config: DetectionConfig) -> DetectionPipeline:
-        return DetectionPipeline(loud_is_cry(classifier_threshold_db), config, mode_provider, START)
+        return DetectionPipeline(loud_is_cry(classifier_threshold_db), config, mode_provider, lambda: START)
 
     return make
 

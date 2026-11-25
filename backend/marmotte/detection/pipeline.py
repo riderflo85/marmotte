@@ -5,7 +5,6 @@ from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from datetime import timedelta
 
 import numpy as np
 
@@ -59,12 +58,16 @@ class DetectionPipeline:
     """Turn a stream of sound into alerts; alerts are only sent in the `sieste` mode."""
 
     def __init__(
-        self, classifier: Classifier, config: DetectionConfig, mode_provider: Callable[[], Mode], start: datetime
+        self,
+        classifier: Classifier,
+        config: DetectionConfig,
+        mode_provider: Callable[[], Mode],
+        clock: Callable[[], datetime],
     ) -> None:
         self._classifier = classifier
         self._config = config
         self._mode_provider = mode_provider
-        self._start = start
+        self._clock = clock
         self._pending = np.zeros(0, dtype=np.float32)
         self._hops: deque[Audio] = deque(maxlen=_HOPS_PER_WINDOW)
         self._gate: deque[bool] = deque(maxlen=_HOPS_PER_WINDOW)
@@ -122,6 +125,7 @@ class DetectionPipeline:
         return None
 
     def _alert(self, kind: SoundClass, offset_s: float, via_scream_net: bool) -> AlertEvent:
-        event = AlertEvent(uuid.uuid4(), kind, self._start + timedelta(seconds=offset_s), offset_s, via_scream_net)
+        # The time is read when the alert is decided: the clock of the Pi may be set after the start.
+        event = AlertEvent(uuid.uuid4(), kind, self._clock(), offset_s, via_scream_net)
         self._last_alert = event
         return event

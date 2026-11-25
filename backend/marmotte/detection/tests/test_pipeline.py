@@ -29,7 +29,7 @@ def noise(seconds: float, dbfs: float, seed: int = 0) -> Audio:
 
 def pipeline(mode: Mode, classifier: Classifier) -> DetectionPipeline:
     """A pipeline with the default configuration and a fixed mode."""
-    return DetectionPipeline(classifier, DetectionConfig(), lambda: mode, START)
+    return DetectionPipeline(classifier, DetectionConfig(), lambda: mode, lambda: START)
 
 
 def feed_all(p: DetectionPipeline, audio: Audio) -> list[AlertEvent]:
@@ -53,7 +53,19 @@ class TestDetectionPipeline:
         assert alerts[0].kind == SoundClass.CRY
         assert not alerts[0].via_scream_net
         assert 20.0 <= alerts[0].offset_s <= 28.0
-        assert alerts[0].at == START + timedelta(seconds=alerts[0].offset_s)
+
+    def test_alert_time_is_read_on_the_clock_at_decision(self) -> None:
+        """The alert time comes from the clock when the alert is decided, not from the start time."""
+        # GIVEN
+        now = [START]
+        p = DetectionPipeline(loud_is_cry(-45), DetectionConfig(), lambda: Mode.SIESTE, clock=lambda: now[0])
+        feed_all(p, noise(20, -55))
+        decision_time = START + timedelta(hours=1)
+        now[0] = decision_time
+        # WHEN
+        alerts = feed_all(p, noise(15, -35, seed=1))
+        # THEN
+        assert [alert.at for alert in alerts] == [decision_time]
 
     def test_long_cry_alerts_once_per_pause(self) -> None:
         """A cry that lasts 50 s gives one alert, not one per slice (anti-burst)."""

@@ -57,7 +57,7 @@ class TestRun:
         """run() reads the source to its end and sends each alert to the sink."""
         # GIVEN
         cry_signal = np.concatenate([noise(20, -55), noise(15, -35, seed=1)])
-        p = DetectionPipeline(loud_is_cry(-45), DetectionConfig(), lambda: Mode.SIESTE, START)
+        p = DetectionPipeline(loud_is_cry(-45), DetectionConfig(), lambda: Mode.SIESTE, lambda: START)
         # WHEN
         run(ArraySource(cry_signal), p, JsonLinesSink(sys.stdout))
         # THEN
