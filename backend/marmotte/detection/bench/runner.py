@@ -43,13 +43,18 @@ def missed_long_cries(
     shift_s: float,
     long_s: float = LONG_CRY_S,
     budget_s: float = DETECTION_BUDGET_S,
+    pause_s: float = 0.0,
 ) -> tuple[int, int]:
     """Count the cries longer than `long_s`, and those with no alert within `budget_s` of their onset.
 
+    An alert less than `pause_s` before the onset counts too: the parent was just notified, and the
+    anti-burst pause holds the next alert back on purpose.
     Segments are relative to the clip, which starts `shift_s` seconds into the stream.
     """
     long_cries = [(start + shift_s, end + shift_s) for start, end in segments if end - start > long_s]
-    missed = sum(not any(onset <= offset <= onset + budget_s for offset in alert_offsets) for onset, _ in long_cries)
+    missed = sum(
+        not any(onset - pause_s <= offset <= onset + budget_s for offset in alert_offsets) for onset, _ in long_cries
+    )
     return len(long_cries), missed
 
 
@@ -126,14 +131,12 @@ def run_bench(clips: list[Clip], make_pipeline: PipelineFactory, seed: int = 42)
     for clip in babies:
         padding = np.resize(load_audio(rooms[rng.integers(len(rooms))].file), lead + int(TAIL_S * SAMPLE_RATE))
         audio = load_audio(clip.file)
-        offsets = [
-            alert.offset_s
-            for alert in make_pipeline(_sieste).feed(np.concatenate([padding[:lead], audio, padding[lead:]]))
-        ]
+        pipeline = make_pipeline(_sieste)
+        offsets = [alert.offset_s for alert in pipeline.feed(np.concatenate([padding[:lead], audio, padding[lead:]]))]
         end_s = LEAD_S + len(audio) / SAMPLE_RATE + TAIL_S
         detected[clip.label].append(any(LEAD_S <= offset <= end_s for offset in offsets))
         if clip.label == "cry":
-            n_long, n_missed = missed_long_cries(list(clip.segments), offsets, LEAD_S)
+            n_long, n_missed = missed_long_cries(list(clip.segments), offsets, LEAD_S, pause_s=pipeline.config.pause_s)
             long_cries += n_long
             missed += n_missed
             if n_missed:

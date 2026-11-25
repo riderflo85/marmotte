@@ -78,6 +78,11 @@ class DetectionPipeline:
         self._anti_burst = AntiBurst(pause_s=config.pause_s)
 
     @property
+    def config(self) -> DetectionConfig:
+        """The settings of this chain."""
+        return self._config
+
+    @property
     def stats(self) -> PipelineStats:
         return PipelineStats(self._level_db, self._floor.value_db, self._mic.is_silent, self._last_alert)
 

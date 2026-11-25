@@ -84,6 +84,20 @@ class TestMissedLongCries:
         # THEN
         assert result == (1, 1)
 
+    def test_alert_during_the_pause_before_onset_counts(self) -> None:
+        """An alert 2 s before the onset kept the next one back (anti-burst): the parent was notified."""
+        # WHEN
+        result = missed_long_cries([(0.0, 12.0)], [8.0], shift_s=10.0, pause_s=60.0)
+        # THEN
+        assert result == (1, 0)
+
+    def test_alert_older_than_the_pause_does_not_count(self) -> None:
+        """An alert 61 s before the onset no longer holds the next one back."""
+        # WHEN
+        result = missed_long_cries([(0.0, 12.0)], [10.0], shift_s=71.0, pause_s=60.0)
+        # THEN
+        assert result == (1, 1)
+
     def test_short_cry_is_not_counted_as_long(self) -> None:
         """A 5 s cry is not part of the "long cries" objective."""
         # WHEN
@@ -243,6 +257,19 @@ class TestRunBench:
         assert report.background_s >= 7200.0
         assert report.recall_by_label == {"cry": 1.0}
         assert report.meets_targets()
+
+    def test_long_cry_in_the_pause_of_an_earlier_alert_is_not_missed(self, tmp_path: Path) -> None:
+        """A short cry alerts; the long cry 3.5 s later falls in the anti-burst pause: not missed."""
+        # GIVEN
+        cry = np.concatenate([noise(4, -30, seed=1), noise(3.5, -60, seed=3), noise(15, -30, seed=4)])
+        clips = [
+            _clip(tmp_path, "room", noise(30, -60), "background", tags=("room",)),
+            _clip(tmp_path, "cry", cry, "cry", segments=((0.0, 4.0), (7.5, 22.5))),
+        ]
+        # WHEN
+        report = run_bench(clips, _fake_pipeline_factory(-40.0))
+        # THEN
+        assert (report.long_cries, report.missed_long_cries) == (1, 0)
 
     def test_counts_a_cry_too_quiet_to_detect_as_missed(self, tmp_path: Path) -> None:
         """A cry under the classifier threshold is a missed long cry, and the targets fail."""
