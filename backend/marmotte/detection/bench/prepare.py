@@ -9,6 +9,7 @@ import numpy as np
 import soundfile as sf
 
 from marmotte.detection.audio import to_mono_16k
+from marmotte.detection.bench.manifest import LICENSE_URLS
 from marmotte.detection.bench.manifest import Clip
 from marmotte.detection.bench.manifest import check_label
 from marmotte.detection.bench.manifest import check_license
@@ -82,6 +83,7 @@ def prepare_clip(
         credits_path.write_text(CREDITS_HEADER)
     origin = f"[{title}]({source_url})" if title else source_url
     with credits_path.open("a") as f:
-        f.write(f"| `{bench_dir.name}/{relative}` | {origin} | {author} | {license} | mono 16 kHz |\n")
+        license_link = f"[{license}]({LICENSE_URLS[license]})"
+        f.write(f"| `{bench_dir.name}/{relative}` | {origin} | {author} | {license_link} | mono 16 kHz |\n")
 
     return Clip(output, label, tuple(tags), source_url, author, license, tuple(segments))

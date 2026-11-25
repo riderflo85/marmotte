@@ -188,6 +188,25 @@ class TestPrepareClip:
         assert (info.samplerate, info.channels) == (16_000, 1)
         assert "https://freesound.org/s/42/" in (bench_dir / "CREDITS.md").read_text()
 
+    def test_credits_link_the_license_text(self, tmp_path: Path) -> None:
+        """CC BY asks for a link to the license text: the credits row links it."""
+        # GIVEN
+        source = tmp_path / "download.wav"
+        sf.write(source, np.zeros(16_000, dtype=np.float32), 16_000)
+        bench_dir = tmp_path / "bench"
+        # WHEN
+        prepare_clip(
+            source,
+            bench_dir,
+            label="laugh",
+            source_url="https://freesound.org/s/42/",
+            author="someone",
+            license="CC-BY-3.0",
+        )
+        # THEN
+        credits = (bench_dir / "CREDITS.md").read_text()
+        assert "| [CC-BY-3.0](https://creativecommons.org/licenses/by/3.0/) |" in credits
+
     def test_refuses_non_free_license_before_writing(self, tmp_path: Path) -> None:
         """A non free license is refused before any file is written."""
         # GIVEN

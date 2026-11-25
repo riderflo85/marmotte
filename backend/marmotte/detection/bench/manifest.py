@@ -10,7 +10,13 @@ BENCH_MANIFEST = BENCH_DIR / "manifest.toml"
 LOCAL_MANIFEST = BENCH_DIR / "local" / "manifest.toml"
 """Local bench (ignored by Git), for trials with recordings that are not free (videos…)."""
 
-FREE_LICENSES = frozenset({"CC0-1.0", "CC-BY-3.0", "CC-BY-4.0"})
+LICENSE_URLS = {
+    "CC0-1.0": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "CC-BY-3.0": "https://creativecommons.org/licenses/by/3.0/",
+    "CC-BY-4.0": "https://creativecommons.org/licenses/by/4.0/",
+}
+"""Text of each accepted license, linked from the credits (CC BY asks for it)."""
+FREE_LICENSES = frozenset(LICENSE_URLS)
 BABY_LABELS = ("cry", "whimper", "babble", "laugh", "scream")
 LABELS = (*BABY_LABELS, "background")
 
