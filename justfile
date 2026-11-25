@@ -18,13 +18,15 @@ test:
     cd frontend && npx vitest --run
 
 # Arguments dans l'ordre : `just deploy <hôte> <clé ssh>`. Une clé absente est ignorée (avec un avertissement) : ssh essaie alors ses clés habituelles.
-# Envoie le back sur le Pi de dev (sans le .env du PC), installe ses dépendances et affiche la version
+# Envoie le back sur le Pi de dev (sans le .env ni le modèle YAMNet du PC), installe ses dépendances et affiche la version
 deploy host="marmotte-dev.local" key="~/.ssh/id_ed25519_raspi":
     #!/usr/bin/env bash
     set -euo pipefail
+    # Les fichiers exclus ne sont ni envoyés ni effacés par --delete : le Pi garde son modèle téléchargé.
     rsync -a --delete --mkpath -e "ssh -i {{key}}" \
         --exclude .venv --exclude .data --exclude .env --exclude __pycache__ \
         --exclude .pytest_cache --exclude .ruff_cache \
+        --exclude 'models/*.tflite' --exclude 'models/*.part' \
         backend/ "{{host}}:marmotte/backend/"
     # Shell de connexion (-l) : uv est dans ~/.local/bin, ajouté au PATH par ~/.profile.
     ssh -i "{{key}}" "{{host}}" bash -l -s <<'EOF'

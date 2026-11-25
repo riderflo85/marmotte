@@ -18,6 +18,8 @@ Python est installé et géré par **uv** (version figée dans `backend/.python-
 | Installer le front | `cd frontend && npm ci` |
 | Front | `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run format:check`, `npx vitest --run`, `npm run build` (dans `frontend/`) |
 | Tout le lint, tous les tests | `just lint`, `just test` |
+| Détection des pleurs | `cd backend && uv run python -m marmotte.detection --wav <fichier>` (ou `--alsa micro` sur le Pi) |
+| Banc de la détection | `cd backend && uv run python -m marmotte.detection.bench run`, tests `uv run pytest -m "model or bench"` |
 | Hooks pre-commit | `uvx pre-commit install` (une fois : contrôles avant le commit, pré-remplissage et contrôle du message), `uvx pre-commit run --all-files` |
 | Déployer sur le Pi de dev | `just deploy` (par défaut `marmotte-dev.local`, clé `~/.ssh/id_ed25519_raspi`), `just deploy <hôte>`, `just deploy <hôte> <clé ssh>` : arguments dans l'ordre, sans `nom=` (`host=x` serait pris comme nom d'hôte) |
 
@@ -43,6 +45,7 @@ Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-d
 - **Aucune dépendance sous licence non commerciale** ; du code **GPL** seulement comme programme séparé, jamais importé ni intégré.
 - **Typage** : toute fonction écrite ou modifiée a ses paramètres et son retour typés (`-> None` compris), en syntaxe moderne (`list[str]`, `X | None`). pyright (mode `standard`) tourne dans la CI ; la règle `ANN` de ruff refuse une fonction non annotée.
 - **Style** : ruff pour le back (`backend/pyproject.toml` : 120 colonnes, un import par ligne, règles `E`, `W`, `F`, `I`, `UP`, `B`, `SIM`, `C4`, `PTH`, `RUF`, `N`, `PT`, `DJ`, `LOG`, `ANN`, `TID`, `ERA`), Prettier pour le front (120 colonnes). Pas de black, isort ni flake8 : ruff les remplace. Exception ponctuelle : `# pyright: ignore[<règle>]`, jamais un `ignore` nu.
+- **Commentaires** : une constante de module ou un champ de dataclass se décrit par une docstring placée juste en dessous (`"""…"""`), que l'éditeur affiche au survol partout où il est utilisé ; `#` explique le code (le pourquoi d'une ligne ou d'un choix) et décrit ce qui ne peut pas porter de docstring (entrée de dictionnaire, ligne d'une liste).
 
 ## Conventions
 

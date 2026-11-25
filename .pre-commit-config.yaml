@@ -16,6 +16,12 @@ repos:
       - id: detect-private-key
       - id: check-added-large-files
         args: [--maxkb=1024]
+        exclude: ^backend/bench/clips/
+      # Sons du banc de détection (FLAC 16 kHz) : jusqu'à 4 min chacun, environ 4,5 Mo.
+      - id: check-added-large-files
+        name: check for added large files (bench clips)
+        args: [--maxkb=5120]
+        files: ^backend/bench/clips/
       - id: check-json
         # Les tsconfig contiennent des commentaires (JSONC), refusés par check-json.
         exclude: ^frontend/tsconfig.*\.json$

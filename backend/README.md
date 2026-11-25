@@ -62,6 +62,26 @@ uv run pyright             # types
 
 Les tests ne lisent jamais votre `.env` : pytest-env vide `MARMOTTE_ENV_FILE`, ce qui coupe sa lecture, et fixe leurs propres valeurs (`pyproject.toml`), même si le terminal en définit d'autres. Les marqueurs `hardware` (vrai matériel, sur le Pi), `model` (fichier YAMNet) et `bench` (banc d'essai complet) désignent les tests exclus de la CI de base. Depuis la racine du dépôt, `just lint` et `just test` lancent tout, back et front.
 
+## Détection des pleurs
+
+Le service de détection lit un fichier son ou le micro, et écrit chaque alerte sur une ligne JSON (le mode est fixé à Sieste jusqu'au lot 4) :
+
+```bash
+uv run python -m marmotte.detection --wav sieste.flac    # un fichier WAV ou FLAC
+uv run python -m marmotte.detection --alsa micro         # le micro partagé du Pi
+```
+
+Au premier lancement, le modèle YAMNet (environ 4 Mo) est téléchargé dans `models/`, d'après `models/models.toml`, et vérifié par son empreinte SHA-256 ; il est ignoré par Git et `just deploy` ne l'écrase pas sur le Pi. Sur le Pi, la lecture du micro demande PortAudio : `sudo apt install libportaudio2`.
+
+Le banc d'essai rejoue 127 sons libres (`bench/`) et mesure les pleurs manqués et les fausses alertes :
+
+```bash
+uv run python -m marmotte.detection.bench run       # rapport ; code de sortie 1 si le garde-fou de la CI échoue
+uv run pytest -m "model or bench"                   # tests avec le vrai modèle et banc complet (quelques minutes)
+```
+
+Fonctionnement, réglages et limites : `docs/features/detection-des-pleurs.md`.
+
 ## Organisation
 
 ```
@@ -80,6 +100,12 @@ backend/
       views/          points d'API (un fichier par objet, chacun avec son routeur)
       api_urls.py     assemble les routeurs du module
       tests/          tests du module (tests_views/, test_<sujet>.py…)
+    common/           types partagés par les services (modes, catégories de sons)
+    detection/        détection des pleurs, sans Django : un fichier par sujet (audio, niveau, modèle, décision…)
+      bench/          banc d'essai : manifeste, préparation des sons, rejeu
+      data/           noms des catégories de YAMNet
+  bench/              sons du banc (FLAC), manifest.toml, CREDITS.md
+  models/             models.toml ; les modèles téléchargés n'entrent pas dans Git
 ```
 
 Pour ajouter un point d'API à un module : son schéma dans `schemas/<objet>.py`, ses routes dans `views/<objet>.py` (un `Router` django-ninja), puis le routeur ajouté dans `api_urls.py`, et les tests dans `tests/tests_views/`.
