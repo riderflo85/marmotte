@@ -57,14 +57,15 @@ jobs:
         with:
           fetch-depth: 0
       # Le job tourne toujours, pour qu'un contrôle requis ait un résultat ; le banc ne tourne que si
-      # la détection, le banc, le modèle ou les dépendances changent (toujours sur main).
+      # la détection, le banc, le modèle, les dépendances, la version de Python ou les réglages de pytest
+      # changent (toujours sur main).
       - name: Fichiers de la détection modifiés ?
         id: changes
         working-directory: .
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          pattern='^(backend/(marmotte/(detection|common)/|bench/|models/|uv\.lock)|\.github/workflows/ci\.yml)'
+          pattern='^(backend/(marmotte/(detection|common)/|bench/|models/|uv\.lock|pyproject\.toml|\.python-version)|\.github/workflows/ci\.yml)'
           if [ -z "$BASE_SHA" ] || git diff --name-only "$BASE_SHA" HEAD | grep -qE "$pattern"; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
