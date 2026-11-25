@@ -43,6 +43,7 @@ Réglages lus dans l'environnement, ou dans `backend/.env` (chargé par python-d
 - **Aucune dépendance sous licence non commerciale** ; du code **GPL** seulement comme programme séparé, jamais importé ni intégré.
 - **Typage** : toute fonction écrite ou modifiée a ses paramètres et son retour typés (`-> None` compris), en syntaxe moderne (`list[str]`, `X | None`). pyright (mode `standard`) tourne dans la CI ; la règle `ANN` de ruff refuse une fonction non annotée.
 - **Style** : ruff pour le back (`backend/pyproject.toml` : 120 colonnes, un import par ligne, règles `E`, `W`, `F`, `I`, `UP`, `B`, `SIM`, `C4`, `PTH`, `RUF`, `N`, `PT`, `DJ`, `LOG`, `ANN`, `TID`, `ERA`), Prettier pour le front (120 colonnes). Pas de black, isort ni flake8 : ruff les remplace. Exception ponctuelle : `# pyright: ignore[<règle>]`, jamais un `ignore` nu.
+- **Commentaires** : une constante de module ou un champ de dataclass se décrit par une docstring placée juste en dessous (`"""…"""`), que l'éditeur affiche au survol partout où il est utilisé ; `#` explique le code (le pourquoi d'une ligne ou d'un choix) et décrit ce qui ne peut pas porter de docstring (entrée de dictionnaire, ligne d'une liste).
 
 ## Conventions
 
