@@ -96,7 +96,7 @@ class TestScreamNet:
 
 class TestAntiBurst:
     def test_blocks_during_pause_but_not_screams(self) -> None:
-        """After an alert, others wait for the pause, except those of the scream net."""
+        """After an alert, others wait for the pause, except those of the scream net, which restart it."""
         # GIVEN
         anti_burst = AntiBurst(pause_s=60.0)
         # WHEN
@@ -105,12 +105,13 @@ class TestAntiBurst:
             anti_burst.allow(30.0, via_scream_net=False),
             anti_burst.allow(31.0, via_scream_net=True),
             anti_burst.allow(61.0, via_scream_net=False),
+            anti_burst.allow(91.0, via_scream_net=False),
         ]
         # THEN
-        assert allowed == [True, False, True, True]
+        assert allowed == [True, False, True, False, True]
 
     def test_scream_net_alerts_have_their_own_pause(self) -> None:
-        """A scream net alert passes the cry pause, but does not ring again within its own pause."""
+        """A scream net alert starts the cry pause too, and does not ring again within its own pause."""
         # GIVEN
         anti_burst = AntiBurst(pause_s=60.0)
         # WHEN
@@ -121,7 +122,7 @@ class TestAntiBurst:
             anti_burst.allow(61.0, via_scream_net=True),
         ]
         # THEN
-        assert allowed == [True, True, False, True]
+        assert allowed == [True, False, False, True]
 
     def test_pause_counts_from_last_allowed_alert(self) -> None:
         """A blocked alert does not restart the pause."""

@@ -59,8 +59,9 @@ class ScreamNet:
 class AntiBurst:
     """One alert, then a pause before the next.
 
-    Scream net alerts pass the pause of the sliding window alerts and do not restart it, but they have
-    their own pause: a long scream does not ring at every breath.
+    Scream net alerts pass the pause of the sliding window alerts and start it again (F-21: one
+    notification per pause for one crying episode); they also have their own pause, so a long scream
+    does not ring at every breath.
     """
 
     def __init__(self, pause_s: float = 60.0) -> None:
@@ -75,6 +76,5 @@ class AntiBurst:
             return False
         if via_scream_net:
             self._last_net_s = now_s
-        else:
-            self._last_s = now_s
+        self._last_s = now_s
         return True

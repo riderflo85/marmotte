@@ -112,6 +112,19 @@ class TestDetectionPipeline:
         ]
         assert 35.0 <= alerts[1].offset_s <= 37.0
 
+    def test_scream_alert_holds_back_the_next_cry_alert(self) -> None:
+        """F-21: a scream net alert, then a cry seconds later, gives one notification for the pause."""
+        # GIVEN
+        classifier = FakeClassifier(
+            lambda window: {SoundClass.SCREAM: 0.8} if rms_dbfs(window) > -15 else {SoundClass.CRY: 0.9}
+        )
+        p = pipeline(Mode.SIESTE, classifier)
+        audio = np.concatenate([noise(20, -55), noise(5, -10, seed=1), noise(15, -35, seed=2)])
+        # WHEN
+        alerts = feed_all(p, audio)
+        # THEN
+        assert [(alert.kind, alert.via_scream_net) for alert in alerts] == [(SoundClass.SCREAM, True)]
+
     def test_door_slam_does_not_alert(self) -> None:
         """Review Focus 2: a 0.3 s very loud sound does not alert."""
         # GIVEN
