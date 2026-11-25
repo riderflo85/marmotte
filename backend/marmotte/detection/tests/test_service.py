@@ -13,14 +13,18 @@ import soundfile as sf
 
 from marmotte.common.enums import Mode
 from marmotte.common.enums import SoundClass
+from marmotte.detection import __main__ as detection_main
 from marmotte.detection.audio import ArraySource
 from marmotte.detection.pipeline import DetectionConfig
 from marmotte.detection.pipeline import DetectionPipeline
 from marmotte.detection.service import run
 from marmotte.detection.sinks import JsonLinesSink
+from marmotte.detection.tests.fakes import FakeClassifier
 from marmotte.detection.tests.fakes import loud_is_cry
+from marmotte.detection.tests.fakes import silent
 from marmotte.detection.tests.test_pipeline import noise
 from marmotte.detection.types import AlertEvent
+from marmotte.detection.types import Audio
 
 FIXTURES = Path(__file__).parent / "fixtures"
 START = datetime(2026, 1, 1, tzinfo=UTC)
@@ -89,3 +93,36 @@ class TestCommandLine:
         assert alerts
         assert alerts[0]["kind"] == "cry"
         assert 10.0 <= alerts[0]["offset_s"] <= 18.0
+
+
+class TestMain:
+    def test_opens_the_micro_after_the_model_and_closes_it(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """The micro opens once the model is ready (no stale sound piles up), and closes on exit."""
+        # GIVEN
+        events: list[str] = []
+
+        class FakeMicro:
+            def __init__(self, device: str) -> None:
+                events.append(f"open {device}")
+
+            def read(self, n: int) -> Audio | None:
+                return None
+
+            def close(self) -> None:
+                events.append("close")
+
+        def fake_ensure_yamnet(models_dir: Path) -> Path:
+            events.append("model")
+            return models_dir / "yamnet.tflite"
+
+        def fake_classifier(model_path: Path) -> FakeClassifier:
+            return silent()
+
+        monkeypatch.setattr(detection_main, "ensure_yamnet", fake_ensure_yamnet)
+        monkeypatch.setattr(detection_main, "YamnetClassifier", fake_classifier)
+        monkeypatch.setattr(detection_main, "AlsaSource", FakeMicro)
+        # WHEN
+        code = detection_main.main(["--alsa", "micro"])
+        # THEN
+        assert code == 0
+        assert events == ["model", "open micro", "close"]

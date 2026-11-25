@@ -42,16 +42,20 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     logging.basicConfig(level=logging.INFO, stream=sys.stderr, format="%(asctime)s %(levelname)s %(message)s")
-    source: AudioSource = WavFileSource(args.wav, loop=args.loop) if args.wav else AlsaSource(args.alsa)
     pipeline = DetectionPipeline(
         YamnetClassifier(ensure_yamnet(args.models_dir)),
         DetectionConfig(sensitivity=Sensitivity(args.sensitivity)),
         lambda: Mode.SIESTE,
         lambda: datetime.now(UTC),
     )
-    # Ctrl+C stops listening without a traceback.
-    with contextlib.suppress(KeyboardInterrupt):
-        run(source, pipeline, JsonLinesSink(sys.stdout), stats_every_s=STATS_EVERY_S)
+    # The micro opens once the model is ready: no sound piles up while it loads.
+    source: AudioSource = WavFileSource(args.wav, loop=args.loop) if args.wav else AlsaSource(args.alsa)
+    try:
+        # Ctrl+C stops listening without a traceback.
+        with contextlib.suppress(KeyboardInterrupt):
+            run(source, pipeline, JsonLinesSink(sys.stdout), stats_every_s=STATS_EVERY_S)
+    finally:
+        source.close()
     return 0
 
 

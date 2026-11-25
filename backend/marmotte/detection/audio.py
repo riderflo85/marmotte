@@ -43,6 +43,10 @@ class AudioSource(Protocol):
         """Return the next `n` samples, or None at the end of the stream."""
         ...
 
+    def close(self) -> None:
+        """Release the device behind the stream, if any."""
+        ...
+
 
 class ArraySource:
     """Serve samples already in memory, padding the last chunk with zeros."""
@@ -65,6 +69,9 @@ class ArraySource:
         if len(chunk) < n:
             chunk = np.concatenate([chunk, np.zeros(n - len(chunk), dtype=np.float32)])
         return chunk
+
+    def close(self) -> None:
+        """Nothing to release: the samples are in memory."""
 
 
 class WavFileSource(ArraySource):
