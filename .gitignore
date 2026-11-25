@@ -29,6 +29,7 @@ frontend/dist/
 
 # Modèle YAMNet (téléchargé, pas versionné) et bancs d'essai locaux
 backend/models/*.tflite
+backend/models/*.part
 backend/bench/local/
 
 # Claude Code : réglages personnels et sorties locales (relectures gardées)
