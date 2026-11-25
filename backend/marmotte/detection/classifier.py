@@ -18,7 +18,8 @@ DEFAULT_CLASS_MAP = Path(__file__).parent / "data" / "yamnet_class_map.csv"
 """YAMNet class names, from tensorflow/models (research/audioset/yamnet, Apache 2.0)."""
 
 YAMNET_NAMES: dict[SoundClass, tuple[str, ...]] = {
-    SoundClass.CRY: ("Baby cry, infant cry",),
+    # "Crying, sobbing" often scores above "Baby cry" on real cries: with it, no long cry is missed on the bench.
+    SoundClass.CRY: ("Baby cry, infant cry", "Crying, sobbing"),
     SoundClass.WHIMPER: ("Whimper",),
     SoundClass.BABBLE: ("Babbling",),
     SoundClass.LAUGH: ("Baby laughter",),

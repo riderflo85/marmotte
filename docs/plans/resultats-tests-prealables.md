@@ -216,3 +216,44 @@ streams:
 ```
 
 Commandes du filtre IR-Cut : `pinctrl set 17 op dl` (nuit) et `pinctrl set 17 ip pn` (jour).
+
+## Banc de détection (lot 2)
+
+Mesuré le 25 novembre 2026 sur le PC avec le banc `backend/bench/` (`uv run python -m marmotte.detection.bench run`, dans `backend/`), d'après la tâche 8 du plan `docs/plans/2026-11-19-lot-2-detection.md`. Les 127 sons viennent de Freesound, sous licence CC0 ou CC BY, et l'auteur les a vérifiés à l'écoute (crédits : `backend/bench/CREDITS.md`).
+
+**Le banc** : 33 pleurs (dont 32 pleurs longs de plus de 8 s), 10 gémissements, 10 babillages, 10 rires, 8 cris, et 56 bruits de fond (75 min : pièce calme, conversation, fête, télévision, musique, cuisine, toux, animaux, bruits de la maison). Chaque son de bébé est rejoué entre 10 s de pièce calme et 5 s de fin. Les bruits de fond s'enchaînent dans un ordre tiré au sort (graine fixe 42), à ±6 dB, jusqu'à 2 h.
+
+**Un pleur long est signalé** si une alerte part dans les 8 s qui suivent son début, ou pendant la pause anti-rafale qui le précède : le parent vient d'être prévenu, et la pause retient exprès l'alerte suivante.
+
+### Réglage retenu
+
+| Réglage | Plan | Retenu |
+|---|---|---|
+| Catégories « pleur » | « Baby cry, infant cry » | + « Crying, sobbing » |
+| Seuil (`THRESHOLDS`) | faible 0,5, moyenne 0,3, forte 0,15 | faible 0,7, **moyenne 0,5**, forte 0,3 |
+| Fenêtre glissante | 2 tranches sur 4 | **3 tranches sur 6** |
+| Premier étage (`gate_margin_db`) | 3 dB | 3 dB |
+| Pause anti-rafale | 60 s | 60 s |
+| Filet « hurlement » | niveau 25 dB au-dessus du bruit de fond pendant 1 s, ou « Screaming » ≥ 0,5 | **« Screaming » ≥ 0,5 seulement**, avec sa propre pause de 60 s |
+
+Le banc mesure la sensibilité moyenne ; les seuils faible et forte l'encadrent, sans mesure.
+
+### Rapport final
+
+| Mesure | Objectif (D81) | Résultat |
+|---|---|---|
+| Pleurs longs manqués | 0 | **0 sur 32** ; alerte au plus tard 7,8 s après le début |
+| Fausses alertes | au plus 1 par 2 h | **1 en 2,03 h**, soit 0,99 par 2 h |
+| Sons signalés (au moins une alerte) | — | pleurs 100 %, rires 80 %, babillages 60 %, cris 62 %, gémissements 50 % |
+
+**Premier passage, avec les réglages du plan** : 1 pleur long manqué, 161 fausses alertes en 2 h, dont 157 du filet « hurlement » déclenché par le niveau.
+
+### Écarts et limites
+
+- **Filet « hurlement » sur le niveau, retiré** (décision de l'auteur ; spec amendée, § 8.1 point 5 et F-20). Le bruit de fond monte lentement (0,1 dB/s), pour qu'un long pleur ne s'y fonde pas. Du coup, toute toux, casserole ou début de musique au-dessus d'un fond calme déclenchait le filet. Fausses alertes par 2 h, selon le réglage : 157 (25 dB pendant 1 s), 45 (35 dB pendant 1 s, avec sa propre pause), 31 (45 dB pendant 3 s, avec sa propre pause). Sans lui, 2 cris du banc ne passent plus par le filet : un bébé de 4 mois que YAMNet prend pour un chien, un enfant excité qui court.
+- **Le filet sonnait à chaque respiration** : pendant un pleur de 100 s, il se réarmait entre deux souffles et passait outre la pause anti-rafale, soit 13 notifications. Il a désormais sa propre pause.
+- **La porte qui grince** (`background-household-346267`) est la seule fausse alerte restante : YAMNet la note 0,96 « Baby cry, infant cry » et 0,98 « Crying, sobbing ». Elle alerte à chaque passage. Les bruits de fond sont rejoués environ 1,6 fois pour atteindre 2 h ; selon le tirage, elle passe une ou deux fois (graines 1 à 5 : de 0,98 à 1,99 fausse alerte par 2 h). **L'objectif est tenu de justesse** avec la graine du banc ; en moyenne, on est vers 1,6 fausse alerte par 2 h. Piste suivante : EfficientAT derrière la même interface `Classifier` (D62).
+- **Gémissements et babillages** sont moins souvent signalés qu'avec le réglage du plan (90 % et 100 %) : c'est le prix de l'objectif de fausses alertes. Ils ne font pas partie des objectifs bloquants.
+- **Un seuil moyen de 0,4** alertait plus tôt (au plus 5,6 s) et signalait 80 % des gémissements, mais le miaulement d'un chat ajoutait une fausse alerte : 1,97 par 2 h.
+- **Le délai** de 7,8 s tient dans le budget de 8 s, avec peu de marge.
+- **Les niveaux du banc ne sont pas ceux d'une vraie chambre** : chaque enregistrement a son propre gain. À reprendre avec les enregistrements du bébé, gardés en local (`python -m marmotte.detection.bench run --local`).

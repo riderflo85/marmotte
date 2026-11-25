@@ -7,11 +7,11 @@ from marmotte.common.enums import Sensitivity
 from marmotte.common.enums import SoundClass
 
 THRESHOLDS: dict[Sensitivity, float] = {
-    Sensitivity.LOW: 0.5,
-    Sensitivity.MEDIUM: 0.3,
-    Sensitivity.HIGH: 0.15,
+    Sensitivity.LOW: 0.7,
+    Sensitivity.MEDIUM: 0.5,
+    Sensitivity.HIGH: 0.3,
 }
-"""Score from which a slice counts for a category, by sensitivity (tuned on the test bench)."""
+"""Score from which a slice counts, by sensitivity: MEDIUM tuned on the test bench, LOW and HIGH frame it."""
 
 BABY_CLASSES = (SoundClass.CRY, SoundClass.WHIMPER, SoundClass.BABBLE, SoundClass.LAUGH)
 """Categories decided by the sliding window; the order is the priority on a tie."""

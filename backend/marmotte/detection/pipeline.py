@@ -38,8 +38,8 @@ class DetectionConfig:
 
     gate_margin_db: float = 3.0
     """The model runs when a hop of the slice is this far above the noise floor."""
-    n: int = 4
-    k: int = 2
+    n: int = 6
+    k: int = 3
     sensitivity: Sensitivity = Sensitivity.MEDIUM
     pause_s: float = 60.0
 
