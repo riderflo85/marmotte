@@ -3,3 +3,1146 @@
 # Each [[clip]]: file (relative to this file), label (cry, whimper, babble, laugh, scream, background),
 # tags (backgrounds: "room" for a quiet room, "music", "tv"…), source, author, license,
 # segments ([start, end] in seconds of each crying episode; pauses shorter than 3 s belong to the episode).
+
+[[clip]]
+file = "clips/cry-211528.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/the_yura/sounds/211528/"
+author = "the_yura"
+license = "CC0-1.0"
+segments = [[0.0, 4.0], [7.1, 22.8]]
+
+[[clip]]
+file = "clips/cry-211527.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/the_yura/sounds/211527/"
+author = "the_yura"
+license = "CC0-1.0"
+segments = [[0.2, 103.8]]
+
+[[clip]]
+file = "clips/cry-458646.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/jamesmbock/sounds/458646/"
+author = "jamesmbock"
+license = "CC0-1.0"
+segments = [[0.2, 24.3]]
+
+[[clip]]
+file = "clips/cry-59578.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/morgantj/sounds/59578/"
+author = "morgantj"
+license = "CC-BY-4.0"
+segments = [[0.0, 23.2]]
+
+[[clip]]
+file = "clips/cry-28101.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/n2p5/sounds/28101/"
+author = "n2p5"
+license = "CC-BY-4.0"
+segments = [[0.0, 41.0]]
+
+[[clip]]
+file = "clips/cry-259607.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/Stevious42/sounds/259607/"
+author = "Stevious42"
+license = "CC-BY-3.0"
+segments = [[0.3, 31.5]]
+
+[[clip]]
+file = "clips/cry-152007.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/winsx87/sounds/152007/"
+author = "winsx87"
+license = "CC0-1.0"
+segments = [[0.7, 67.7]]
+
+[[clip]]
+file = "clips/cry-33669.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/reinsamba/sounds/33669/"
+author = "reinsamba"
+license = "CC-BY-4.0"
+segments = [[0.5, 36.1]]
+
+[[clip]]
+file = "clips/cry-60997.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/poissonmort/sounds/60997/"
+author = "poissonmort"
+license = "CC-BY-4.0"
+segments = [[0.2, 26.8], [30.2, 51.2]]
+
+[[clip]]
+file = "clips/cry-151080.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/PickleJones/sounds/151080/"
+author = "PickleJones"
+license = "CC0-1.0"
+segments = [[0.0, 66.2]]
+
+[[clip]]
+file = "clips/cry-185575.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/ciccarelli/sounds/185575/"
+author = "ciccarelli"
+license = "CC0-1.0"
+segments = [[0.0, 72.1]]
+
+[[clip]]
+file = "clips/cry-167078.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/Julien_Matthey/sounds/167078/"
+author = "Julien_Matthey"
+license = "CC0-1.0"
+segments = [[0.0, 39.6]]
+
+[[clip]]
+file = "clips/cry-107351.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/ermfilm/sounds/107351/"
+author = "ermfilm"
+license = "CC-BY-4.0"
+segments = [[0.2, 17.9]]
+
+[[clip]]
+file = "clips/cry-402927.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/crazyadamos/sounds/402927/"
+author = "crazyadamos"
+license = "CC0-1.0"
+segments = [[1.8, 42.1]]
+
+[[clip]]
+file = "clips/cry-31985.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/tim.kahn/sounds/31985/"
+author = "tim.kahn"
+license = "CC-BY-4.0"
+segments = [[0.6, 108.7]]
+
+[[clip]]
+file = "clips/cry-242119.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/renatofarabeuf/sounds/242119/"
+author = "renatofarabeuf"
+license = "CC-BY-3.0"
+segments = [[0.0, 63.2]]
+
+[[clip]]
+file = "clips/cry-690629.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/blaubeerbenno/sounds/690629/"
+author = "blaubeerbenno"
+license = "CC0-1.0"
+segments = [[0.5, 18.0]]
+
+[[clip]]
+file = "clips/cry-640624.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/piggyfringe/sounds/640624/"
+author = "piggyfringe"
+license = "CC0-1.0"
+segments = [[0.0, 44.1]]
+
+[[clip]]
+file = "clips/cry-431644.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/blukotek/sounds/431644/"
+author = "blukotek"
+license = "CC0-1.0"
+segments = [[3.1, 9.1], [12.3, 60.8]]
+
+[[clip]]
+file = "clips/cry-389774.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/YleArkisto/sounds/389774/"
+author = "YleArkisto"
+license = "CC-BY-4.0"
+segments = [[0.6, 24.9]]
+
+[[clip]]
+file = "clips/cry-803535.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/clod111/sounds/803535/"
+author = "clod111"
+license = "CC-BY-4.0"
+segments = [[1.6, 16.8], [20.4, 27.6]]
+
+[[clip]]
+file = "clips/cry-114276.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/quigley_paul/sounds/114276/"
+author = "quigley_paul"
+license = "CC-BY-3.0"
+segments = [[0.0, 36.7]]
+
+[[clip]]
+file = "clips/cry-518560.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/sjmac1962/sounds/518560/"
+author = "sjmac1962"
+license = "CC0-1.0"
+segments = [[0.0, 39.8]]
+
+[[clip]]
+file = "clips/cry-691557.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/GiovanniProvenzale/sounds/691557/"
+author = "GiovanniProvenzale"
+license = "CC0-1.0"
+segments = [[0.2, 7.5], [10.6, 12.3], [16.5, 83.0]]
+
+[[clip]]
+file = "clips/cry-773911.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/Xekilor/sounds/773911/"
+author = "Xekilor"
+license = "CC0-1.0"
+segments = [[0.1, 48.3]]
+
+[[clip]]
+file = "clips/cry-211529.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/the_yura/sounds/211529/"
+author = "the_yura"
+license = "CC0-1.0"
+segments = [[0.1, 43.2]]
+
+[[clip]]
+file = "clips/cry-346663.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/deleted_user_2104797/sounds/346663/"
+author = "deleted_user_2104797"
+license = "CC0-1.0"
+segments = [[0.5, 10.1]]
+
+[[clip]]
+file = "clips/cry-151085.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/PickleJones/sounds/151085/"
+author = "PickleJones"
+license = "CC0-1.0"
+segments = [[0.0, 10.8]]
+
+[[clip]]
+file = "clips/cry-393769.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/nektaria909/sounds/393769/"
+author = "nektaria909"
+license = "CC0-1.0"
+segments = [[0.6, 6.9]]
+
+[[clip]]
+file = "clips/cry-436915.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/organicmanpl/sounds/436915/"
+author = "organicmanpl"
+license = "CC0-1.0"
+segments = [[0.1, 9.1]]
+
+[[clip]]
+file = "clips/cry-80482.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/stevelalonde/sounds/80482/"
+author = "stevelalonde"
+license = "CC-BY-4.0"
+segments = [[0.2, 6.4]]
+
+[[clip]]
+file = "clips/cry-96326.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/NoiseCollector/sounds/96326/"
+author = "NoiseCollector"
+license = "CC-BY-3.0"
+segments = [[0.0, 15.2]]
+
+[[clip]]
+file = "clips/whimper-458644.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/jamesmbock/sounds/458644/"
+author = "jamesmbock"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-202730.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/carolgee/sounds/202730/"
+author = "carolgee"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-260812.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/iccleste/sounds/260812/"
+author = "iccleste"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-179412.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/m3fuss/sounds/179412/"
+author = "m3fuss"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-179410.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/m3fuss/sounds/179410/"
+author = "m3fuss"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-402531.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/klankbeeld/sounds/402531/"
+author = "klankbeeld"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-402313.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/klankbeeld/sounds/402313/"
+author = "klankbeeld"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-608377.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/klankbeeld/sounds/608377/"
+author = "klankbeeld"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-479840.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/craigsmith/sounds/479840/"
+author = "craigsmith"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/whimper-151081.flac"
+label = "whimper"
+tags = []
+source = "https://freesound.org/people/PickleJones/sounds/151081/"
+author = "PickleJones"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-146926.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/mushroomjesus/sounds/146926/"
+author = "mushroomjesus"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-146924.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/mushroomjesus/sounds/146924/"
+author = "mushroomjesus"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-246517.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/klankbeeld/sounds/246517/"
+author = "klankbeeld"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-60454.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/morgantj/sounds/60454/"
+author = "morgantj"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-47375.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/reinsamba/sounds/47375/"
+author = "reinsamba"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-47374.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/reinsamba/sounds/47374/"
+author = "reinsamba"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-171101.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/Engangskameraten/sounds/171101/"
+author = "Engangskameraten"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-179394.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/m3fuss/sounds/179394/"
+author = "m3fuss"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-179408.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/m3fuss/sounds/179408/"
+author = "m3fuss"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/babble-179409.flac"
+label = "babble"
+tags = []
+source = "https://freesound.org/people/m3fuss/sounds/179409/"
+author = "m3fuss"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-259611.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/Stevious42/sounds/259611/"
+author = "Stevious42"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-47370.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/reinsamba/sounds/47370/"
+author = "reinsamba"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-110392.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/soundscalpel.com/sounds/110392/"
+author = "soundscalpel.com"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-461789.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/viktorullri/sounds/461789/"
+author = "viktorullri"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-388407.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/amccoy711/sounds/388407/"
+author = "amccoy711"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-60606.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/zeshoog/sounds/60606/"
+author = "zeshoog"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-395491.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/ATCraiger/sounds/395491/"
+author = "ATCraiger"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-193410.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/Pashee/sounds/193410/"
+author = "Pashee"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-111161.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/NoiseCollector/sounds/111161/"
+author = "NoiseCollector"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/laugh-260774.flac"
+label = "laugh"
+tags = []
+source = "https://freesound.org/people/iccleste/sounds/260774/"
+author = "iccleste"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/cry-476335.flac"
+label = "cry"
+tags = []
+source = "https://freesound.org/people/organicmanpl/sounds/476335/"
+author = "organicmanpl"
+license = "CC0-1.0"
+segments = [[0.4, 52.0]]
+
+[[clip]]
+file = "clips/scream-27225.flac"
+label = "scream"
+tags = []
+source = "https://freesound.org/people/dj80hd/sounds/27225/"
+author = "dj80hd"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/scream-27226.flac"
+label = "scream"
+tags = []
+source = "https://freesound.org/people/dj80hd/sounds/27226/"
+author = "dj80hd"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/scream-27227.flac"
+label = "scream"
+tags = []
+source = "https://freesound.org/people/dj80hd/sounds/27227/"
+author = "dj80hd"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/scream-613579.flac"
+label = "scream"
+tags = []
+source = "https://freesound.org/people/Alejandrodiaz17/sounds/613579/"
+author = "Alejandrodiaz17"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/scream-613580.flac"
+label = "scream"
+tags = []
+source = "https://freesound.org/people/Alejandrodiaz17/sounds/613580/"
+author = "Alejandrodiaz17"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/scream-635333.flac"
+label = "scream"
+tags = []
+source = "https://freesound.org/people/Ambient-X/sounds/635333/"
+author = "Ambient-X"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/scream-785533.flac"
+label = "scream"
+tags = []
+source = "https://freesound.org/people/klankbeeld/sounds/785533/"
+author = "klankbeeld"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/scream-514377.flac"
+label = "scream"
+tags = []
+source = "https://freesound.org/people/iut_Paris8/sounds/514377/"
+author = "iut_Paris8"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-room-172307.flac"
+label = "background"
+tags = ["room"]
+source = "https://freesound.org/people/klankbeeld/sounds/172307/"
+author = "klankbeeld"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-room-641306.flac"
+label = "background"
+tags = ["room"]
+source = "https://freesound.org/people/aleclubin/sounds/641306/"
+author = "aleclubin"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-room-171740.flac"
+label = "background"
+tags = ["room"]
+source = "https://freesound.org/people/klankbeeld/sounds/171740/"
+author = "klankbeeld"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-room-427838.flac"
+label = "background"
+tags = ["room"]
+source = "https://freesound.org/people/leonelmail/sounds/427838/"
+author = "leonelmail"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-room-211192.flac"
+label = "background"
+tags = ["room"]
+source = "https://freesound.org/people/Yuval/sounds/211192/"
+author = "Yuval"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-room-144046.flac"
+label = "background"
+tags = ["room"]
+source = "https://freesound.org/people/gchase/sounds/144046/"
+author = "gchase"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-room-348012.flac"
+label = "background"
+tags = ["room"]
+source = "https://freesound.org/people/mixxythepixxy/sounds/348012/"
+author = "mixxythepixxy"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-room-125393.flac"
+label = "background"
+tags = ["room"]
+source = "https://freesound.org/people/thegoose09/sounds/125393/"
+author = "thegoose09"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-conversation-482990.flac"
+label = "background"
+tags = ["conversation"]
+source = "https://freesound.org/people/priesjensen/sounds/482990/"
+author = "priesjensen"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-conversation-138118.flac"
+label = "background"
+tags = ["conversation"]
+source = "https://freesound.org/people/snakebarney/sounds/138118/"
+author = "snakebarney"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-conversation-243373.flac"
+label = "background"
+tags = ["conversation"]
+source = "https://freesound.org/people/JohnsonBrandEditing/sounds/243373/"
+author = "JohnsonBrandEditing"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-conversation-746444.flac"
+label = "background"
+tags = ["conversation"]
+source = "https://freesound.org/people/imagefilm.berlin/sounds/746444/"
+author = "imagefilm.berlin"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-party-207994.flac"
+label = "background"
+tags = ["party"]
+source = "https://freesound.org/people/unfa/sounds/207994/"
+author = "unfa"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-party-180929.flac"
+label = "background"
+tags = ["party"]
+source = "https://freesound.org/people/toonothing/sounds/180929/"
+author = "toonothing"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-party-394290.flac"
+label = "background"
+tags = ["party"]
+source = "https://freesound.org/people/EpicWizard/sounds/394290/"
+author = "EpicWizard"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-party-573840.flac"
+label = "background"
+tags = ["party"]
+source = "https://freesound.org/people/Eightmate/sounds/573840/"
+author = "Eightmate"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-party-67771.flac"
+label = "background"
+tags = ["party"]
+source = "https://freesound.org/people/Benboncan/sounds/67771/"
+author = "Benboncan"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-party-33392.flac"
+label = "background"
+tags = ["party"]
+source = "https://freesound.org/people/digifishmusic/sounds/33392/"
+author = "digifishmusic"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-party-28204.flac"
+label = "background"
+tags = ["party"]
+source = "https://freesound.org/people/moxobna/sounds/28204/"
+author = "moxobna"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-tv-121795.flac"
+label = "background"
+tags = ["tv"]
+source = "https://freesound.org/people/azimuth413/sounds/121795/"
+author = "azimuth413"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-tv-50377.flac"
+label = "background"
+tags = ["tv"]
+source = "https://freesound.org/people/ingsey101/sounds/50377/"
+author = "ingsey101"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/background-tv-274346.flac"
+label = "background"
+tags = ["tv"]
+source = "https://freesound.org/people/Kostrava/sounds/274346/"
+author = "Kostrava"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-music-110216.flac"
+label = "background"
+tags = ["music"]
+source = "https://freesound.org/people/cheesepuff/sounds/110216/"
+author = "cheesepuff"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-music-112071.flac"
+label = "background"
+tags = ["music"]
+source = "https://freesound.org/people/cheesepuff/sounds/112071/"
+author = "cheesepuff"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-music-415186.flac"
+label = "background"
+tags = ["music"]
+source = "https://freesound.org/people/PSOVOD/sounds/415186/"
+author = "PSOVOD"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-music-140481.flac"
+label = "background"
+tags = ["music"]
+source = "https://freesound.org/people/eliasyian/sounds/140481/"
+author = "eliasyian"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-music-405202.flac"
+label = "background"
+tags = ["music"]
+source = "https://freesound.org/people/drotzruhn/sounds/405202/"
+author = "drotzruhn"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-music-234354.flac"
+label = "background"
+tags = ["music"]
+source = "https://freesound.org/people/ValentinSosnitskiy/sounds/234354/"
+author = "ValentinSosnitskiy"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-music-449409.flac"
+label = "background"
+tags = ["music"]
+source = "https://freesound.org/people/graham_makes/sounds/449409/"
+author = "graham_makes"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-music-44805.flac"
+label = "background"
+tags = ["music"]
+source = "https://freesound.org/people/daveincamas/sounds/44805/"
+author = "daveincamas"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-kitchen-140453.flac"
+label = "background"
+tags = ["kitchen"]
+source = "https://freesound.org/people/aesqe/sounds/140453/"
+author = "aesqe"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-kitchen-352050.flac"
+label = "background"
+tags = ["kitchen"]
+source = "https://freesound.org/people/KenzieVaness/sounds/352050/"
+author = "KenzieVaness"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/background-kitchen-60117.flac"
+label = "background"
+tags = ["kitchen"]
+source = "https://freesound.org/people/Benboncan/sounds/60117/"
+author = "Benboncan"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-kitchen-50767.flac"
+label = "background"
+tags = ["kitchen"]
+source = "https://freesound.org/people/RutgerMuller/sounds/50767/"
+author = "RutgerMuller"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-kitchen-272218.flac"
+label = "background"
+tags = ["kitchen"]
+source = "https://freesound.org/people/spanrucker/sounds/272218/"
+author = "spanrucker"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-cough-184871.flac"
+label = "background"
+tags = ["cough"]
+source = "https://freesound.org/people/Eelke/sounds/184871/"
+author = "Eelke"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-cough-407839.flac"
+label = "background"
+tags = ["cough"]
+source = "https://freesound.org/people/BOBtheROSS/sounds/407839/"
+author = "BOBtheROSS"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-cough-51136.flac"
+label = "background"
+tags = ["cough"]
+source = "https://freesound.org/people/RutgerMuller/sounds/51136/"
+author = "RutgerMuller"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-cough-208761.flac"
+label = "background"
+tags = ["cough"]
+source = "https://freesound.org/people/Harris85/sounds/208761/"
+author = "Harris85"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-cough-54505.flac"
+label = "background"
+tags = ["cough"]
+source = "https://freesound.org/people/moxobna/sounds/54505/"
+author = "moxobna"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-cough-352177.flac"
+label = "background"
+tags = ["cough"]
+source = "https://freesound.org/people/InspectorJ/sounds/352177/"
+author = "InspectorJ"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-cough-144692.flac"
+label = "background"
+tags = ["cough"]
+source = "https://freesound.org/people/tekgnosis/sounds/144692/"
+author = "tekgnosis"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-animal-260881.flac"
+label = "background"
+tags = ["animal"]
+source = "https://freesound.org/people/Trautwein/sounds/260881/"
+author = "Trautwein"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-animal-406085.flac"
+label = "background"
+tags = ["animal"]
+source = "https://freesound.org/people/InspectorJ/sounds/406085/"
+author = "InspectorJ"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-animal-213889.flac"
+label = "background"
+tags = ["animal"]
+source = "https://freesound.org/people/Counter-gamer/sounds/213889/"
+author = "Counter-gamer"
+license = "CC-BY-3.0"
+segments = []
+
+[[clip]]
+file = "clips/background-animal-276267.flac"
+label = "background"
+tags = ["animal"]
+source = "https://freesound.org/people/ScouseMouseJB/sounds/276267/"
+author = "ScouseMouseJB"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-animal-274989.flac"
+label = "background"
+tags = ["animal"]
+source = "https://freesound.org/people/theshaggyfreak/sounds/274989/"
+author = "theshaggyfreak"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-346642.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/InspectorJ/sounds/346642/"
+author = "InspectorJ"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-151269.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/timgormly/sounds/151269/"
+author = "timgormly"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-339673.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/InspectorJ/sounds/339673/"
+author = "InspectorJ"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-159348.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/Huminaatio/sounds/159348/"
+author = "Huminaatio"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-164315.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/Rickmk2/sounds/164315/"
+author = "Rickmk2"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-160465.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/matucha/sounds/160465/"
+author = "matucha"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-346267.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/stib/sounds/346267/"
+author = "stib"
+license = "CC0-1.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-181616.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/ancorapazzo/sounds/181616/"
+author = "ancorapazzo"
+license = "CC-BY-4.0"
+segments = []
+
+[[clip]]
+file = "clips/background-household-149428.flac"
+label = "background"
+tags = ["household"]
+source = "https://freesound.org/people/conleec/sounds/149428/"
+author = "conleec"
+license = "CC0-1.0"
+segments = []
