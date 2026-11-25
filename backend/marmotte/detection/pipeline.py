@@ -115,7 +115,7 @@ class DetectionPipeline:
         decision = self._decider.push(scores)
         scream = self._scream_net.push(scores.get(SoundClass.SCREAM, 0.0))
 
-        if self._mode_provider() is not Mode.SIESTE:
+        if self._mode_provider() != Mode.SIESTE:
             return None
         offset_s = self._samples_done / SAMPLE_RATE
         if decision is not None and self._anti_burst.allow(offset_s, via_scream_net=False):

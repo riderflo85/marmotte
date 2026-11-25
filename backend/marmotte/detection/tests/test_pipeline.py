@@ -101,6 +101,21 @@ class TestDetectionPipeline:
         # THEN
         assert alerts == []
 
+    def test_mode_given_as_plain_text_is_understood(self) -> None:
+        """A mode read as text ("sieste", e.g. from the database) is the same mode."""
+        # GIVEN
+        p = DetectionPipeline(
+            loud_is_cry(-45),
+            DetectionConfig(),
+            lambda: "sieste",  # pyright: ignore[reportArgumentType]
+            lambda: START,
+        )
+        audio = np.concatenate([noise(20, -55), noise(15, -35, seed=1)])
+        # WHEN
+        alerts = feed_all(p, audio)
+        # THEN
+        assert [alert.kind for alert in alerts] == [SoundClass.CRY]
+
     def test_quiet_background_does_not_run_the_model(self) -> None:
         """While nothing rises above the noise floor, the classifier is not called."""
         # GIVEN
