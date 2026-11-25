@@ -12,6 +12,7 @@ import numpy as np
 from marmotte.common.enums import Mode
 from marmotte.common.enums import Sensitivity
 from marmotte.common.enums import SoundClass
+from marmotte.detection.audio import clean_samples
 from marmotte.detection.classifier import Classifier
 from marmotte.detection.decision import THRESHOLDS
 from marmotte.detection.decision import AntiBurst
@@ -83,7 +84,8 @@ class DetectionPipeline:
 
     def feed(self, chunk: Audio) -> list[AlertEvent]:
         """Add sound of any length; return the alerts decided on the complete hops."""
-        self._pending = np.concatenate([self._pending, chunk.astype(np.float32, copy=False)])
+        # A damaged sample (NaN, infinity) would spread to the filter and the floor for good.
+        self._pending = np.concatenate([self._pending, clean_samples(chunk).astype(np.float32, copy=False)])
         alerts: list[AlertEvent] = []
         while len(self._pending) >= HOP:
             hop, self._pending = self._pending[:HOP], self._pending[HOP:]

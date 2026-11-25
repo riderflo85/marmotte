@@ -17,7 +17,7 @@ from marmotte.detection.types import Audio
 logger = logging.getLogger(__name__)
 
 
-def _clean(data: NDArray[np.floating]) -> NDArray[np.floating]:
+def clean_samples(data: NDArray[np.floating]) -> NDArray[np.floating]:
     """Replace NaN and infinities with silence and clip to [-1, 1]."""
     return np.clip(np.nan_to_num(data, nan=0.0, posinf=0.0, neginf=0.0), -1.0, 1.0)
 
@@ -27,13 +27,13 @@ def to_mono_16k(data: NDArray[np.floating], rate: int) -> Audio:
 
     Channels are averaged; damaged values are cleaned before resampling so they cannot spread.
     """
-    samples = _clean(np.asarray(data, dtype=np.float64))
+    samples = clean_samples(np.asarray(data, dtype=np.float64))
     if samples.ndim == 2:
         samples = samples.mean(axis=1)
     if rate != SAMPLE_RATE:
         divisor = gcd(SAMPLE_RATE, rate)
         samples = resample_poly(samples, SAMPLE_RATE // divisor, rate // divisor)
-    return _clean(samples).astype(np.float32)
+    return clean_samples(samples).astype(np.float32)
 
 
 class AudioSource(Protocol):
@@ -96,7 +96,7 @@ class AlsaSource:
         data, overflowed = self._stream.read(n)
         if overflowed:
             logger.warning("ALSA input overflowed: samples were lost")
-        return _clean(data[:, self._channel]).astype(np.float32)
+        return clean_samples(data[:, self._channel]).astype(np.float32)
 
     def close(self) -> None:
         """Stop and close the ALSA stream."""

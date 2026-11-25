@@ -125,6 +125,20 @@ class TestDetectionPipeline:
         # THEN
         assert [(alert.kind, alert.via_scream_net) for alert in alerts] == [(SoundClass.SCREAM, True)]
 
+    def test_damaged_samples_do_not_deafen_the_chain(self) -> None:
+        """Review Focus 5: a NaN in the stream is cleaned, and the cry that follows still alerts."""
+        # GIVEN
+        p = pipeline(Mode.SIESTE, loud_is_cry(-45))
+        quiet = noise(20, -55)
+        quiet[100_000] = np.nan
+        quiet[100_001] = np.inf
+        audio = np.concatenate([quiet, noise(15, -35, seed=1)])
+        # WHEN
+        alerts = feed_all(p, audio)
+        # THEN
+        assert [alert.kind for alert in alerts] == [SoundClass.CRY]
+        assert np.isfinite(p.stats.floor_db)
+
     def test_door_slam_does_not_alert(self) -> None:
         """Review Focus 2: a 0.3 s very loud sound does not alert."""
         # GIVEN
