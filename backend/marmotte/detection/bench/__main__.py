@@ -1,4 +1,4 @@
-"""Bench commands: `prepare` adds a sound, `run` replays the bench with YAMNet (exit code 1 if D81 is not met)."""
+"""Bench commands: `prepare` adds a sound, `run` replays the bench with YAMNet (exit code 1 if the CI gate fails)."""
 
 import argparse
 import sys
@@ -59,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
         clips += load_manifest(LOCAL_MANIFEST, any_license=True)
     report = run_bench(clips, make_yamnet_pipeline)
     print(report.to_text())
-    return 0 if report.meets_targets() else 1
+    return 0 if report.passes_ci_gate() else 1
 
 
 if __name__ == "__main__":

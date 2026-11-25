@@ -11,6 +11,8 @@ from marmotte.common.enums import Mode
 from marmotte.detection.bench.manifest import Clip
 from marmotte.detection.bench.manifest import load_manifest
 from marmotte.detection.bench.prepare import prepare_clip
+from marmotte.detection.bench.runner import BACKGROUND_TARGET_S
+from marmotte.detection.bench.runner import MAX_FALSE_ALERTS_PER_2H
 from marmotte.detection.bench.runner import BenchReport
 from marmotte.detection.bench.runner import false_alerts_per_2h
 from marmotte.detection.bench.runner import missed_long_cries
@@ -21,6 +23,8 @@ from marmotte.detection.tests.fakes import loud_is_cry
 from marmotte.detection.tests.test_pipeline import noise
 
 START = datetime(2026, 1, 1, tzinfo=UTC)
+TWO_HOURS = 7_200.0
+"""Backgrounds replayed by the tests that do not check their length: enough to measure, and fast."""
 
 
 def _manifest_with(tmp_path: Path, license: str = "CC0-1.0", label: str = "cry") -> Path:
@@ -162,6 +166,19 @@ class TestBenchReport:
         assert not empty.meets_targets()
         assert not short_background.meets_targets()
 
+    def test_ci_gate_refuses_a_missed_cry_or_more_false_alerts(self) -> None:
+        """P67: the CI refuses a missed long cry, or more false alerts than when the lot was tuned."""
+        # GIVEN
+        today = BenchReport(10, 0, 4, 21_600.0, MAX_FALSE_ALERTS_PER_2H, {})
+        missed_one = BenchReport(10, 1, 4, 21_600.0, MAX_FALSE_ALERTS_PER_2H, {})
+        worse = BenchReport(10, 0, 5, 21_600.0, MAX_FALSE_ALERTS_PER_2H + 0.01, {})
+        empty = BenchReport(0, 0, 0, 0.0, 0.0, {})
+        # WHEN / THEN
+        assert today.passes_ci_gate()
+        assert not missed_one.passes_ci_gate()
+        assert not worse.passes_ci_gate()
+        assert not empty.passes_ci_gate()
+
 
 class TestPrepareClip:
     def test_converts_and_records_the_clip(self, tmp_path: Path) -> None:
@@ -242,7 +259,7 @@ class TestRunBench:
         # THEN
         assert (report.long_cries, report.missed_long_cries) == (1, 0)
         assert report.false_alerts == 0
-        assert report.background_s >= 7200.0
+        assert report.background_s >= BACKGROUND_TARGET_S
         assert report.recall_by_label == {"cry": 1.0}
         assert report.meets_targets()
 
@@ -255,7 +272,7 @@ class TestRunBench:
             _clip(tmp_path, "cry", cry, "cry", segments=((0.0, 4.0), (7.5, 22.5))),
         ]
         # WHEN
-        report = run_bench(clips, _fake_pipeline_factory(-40.0))
+        report = run_bench(clips, _fake_pipeline_factory(-40.0), background_target_s=TWO_HOURS)
         # THEN
         assert (report.long_cries, report.missed_long_cries) == (1, 0)
 
@@ -268,9 +285,27 @@ class TestRunBench:
             _clip(tmp_path, "cry", cry, "cry", segments=((0.0, 4.0), (7.5, 22.5))),
         ]
         # WHEN
-        report = run_bench(clips, _fake_pipeline_factory(-40.0))
+        report = run_bench(clips, _fake_pipeline_factory(-40.0), background_target_s=TWO_HOURS)
         # THEN
         assert (report.long_cries, report.missed_long_cries) == (1, 1)
+
+    def test_background_draw_does_not_depend_on_baby_sounds(self, tmp_path: Path) -> None:
+        """Adding a baby sound changes neither the order nor the gain of the backgrounds."""
+        # GIVEN
+        rooms = [
+            _clip(tmp_path, f"room{seed}", noise(30, -60, seed=seed), "background", tags=("room",)) for seed in (6, 7)
+        ]
+        tv = _clip(tmp_path, "tv", noise(60, -30, seed=2), "background", tags=("tv",))
+        first_cry = _clip(tmp_path, "cry1", noise(12, -30, seed=1), "cry", segments=((0.0, 12.0),))
+        second_cry = _clip(tmp_path, "cry2", noise(12, -30, seed=5), "cry", segments=((0.0, 12.0),))
+        # WHEN
+        one_cry = run_bench([*rooms, tv, first_cry], _fake_pipeline_factory(-40.0), background_target_s=TWO_HOURS)
+        two_cries = run_bench(
+            [*rooms, tv, first_cry, second_cry], _fake_pipeline_factory(-40.0), background_target_s=TWO_HOURS
+        )
+        # THEN
+        assert one_cry.false_alert_details
+        assert one_cry.false_alert_details == two_cries.false_alert_details
 
     def test_counts_a_cry_too_quiet_to_detect_as_missed(self, tmp_path: Path) -> None:
         """A cry under the classifier threshold is a missed long cry, and the targets fail."""
@@ -280,7 +315,7 @@ class TestRunBench:
             _clip(tmp_path, "cry", noise(12, -45, seed=1), "cry", segments=((0.0, 12.0),)),
         ]
         # WHEN
-        report = run_bench(clips, _fake_pipeline_factory(-40.0))
+        report = run_bench(clips, _fake_pipeline_factory(-40.0), background_target_s=TWO_HOURS)
         # THEN
         assert (report.long_cries, report.missed_long_cries) == (1, 1)
         assert report.recall_by_label == {"cry": 0.0}

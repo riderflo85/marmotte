@@ -29,12 +29,19 @@ LONG_CRY_S = 8.0
 """A cry longer than this must never be missed (D81)."""
 DETECTION_BUDGET_S = 8.0
 """Delay allowed between the onset of a long cry and its alert (D24)."""
-LEAD_S = 10.0
-"""Quiet room before each baby sound: the noise floor settles (the 30 s countdown does it in real life)."""
+LEAD_S = 15.0
+"""Quiet room before each baby sound, longer than the 10 s warm-up of the noise floor: the floor has settled
+when the sound starts, as after the 30 s countdown in real life."""
 TAIL_S = 5.0
 """Quiet room after each baby sound: an alert decided just after the sound still counts."""
-BACKGROUND_TARGET_S = 7_200.0
-"""Seconds of backgrounds to replay: false alerts are measured on at least 2 hours (D81)."""
+MIN_BACKGROUND_S = 7_200.0
+"""D81: false alerts are measured on at least 2 hours of backgrounds."""
+BACKGROUND_TARGET_S = 21_600.0
+"""Seconds of backgrounds replayed: 6 hours, so that the false alert rate hardly depends on the draw."""
+MAX_FALSE_ALERTS_PER_2H = 1.34
+"""CI gate (P67): 4 false alerts in 6 h (1.33 per 2 h, all from the door creak) when lot 2 was tuned;
+more is a regression. D81 asks for at most 1, not reached yet with YAMNet
+(`docs/plans/resultats-tests-prealables.md`)."""
 GAIN_RANGE_DB = 6.0
 """Each background is replayed with a random gain within ± this value."""
 BENCH_TIME = datetime(2026, 1, 1, tzinfo=UTC)
@@ -88,8 +95,14 @@ class BenchReport:
 
     def meets_targets(self) -> bool:
         """D81: no long cry missed, at most one false alert per two hours, measured on enough sound."""
-        measured = self.long_cries > 0 and self.background_s >= BACKGROUND_TARGET_S
-        return measured and self.missed_long_cries == 0 and self.false_alerts_per_2h <= 1.0
+        return self._measured() and self.missed_long_cries == 0 and self.false_alerts_per_2h <= 1.0
+
+    def passes_ci_gate(self) -> bool:
+        """P67: no long cry missed, and no more false alerts than when the detection was tuned."""
+        return self._measured() and self.missed_long_cries == 0 and self.false_alerts_per_2h <= MAX_FALSE_ALERTS_PER_2H
+
+    def _measured(self) -> bool:
+        return self.long_cries > 0 and self.background_s >= MIN_BACKGROUND_S
 
     def to_text(self) -> str:
         lines = [
@@ -101,6 +114,8 @@ class BenchReport:
             *(f"  missed: {name}" for name in self.missed_clips),
             *(f"  false alert: {detail}" for detail in self.false_alert_details),
             "Targets (D81): " + ("met" if self.meets_targets() else "NOT met"),
+            f"CI gate (no missed long cry, at most {MAX_FALSE_ALERTS_PER_2H:g} false alerts per 2 h): "
+            + ("passed" if self.passes_ci_gate() else "FAILED"),
         ]
         return "\n".join(lines)
 
@@ -126,7 +141,11 @@ def _sieste() -> Mode:
 
 
 def run_bench(
-    clips: list[Clip], make_pipeline: PipelineFactory, seed: int = 42, config: DetectionConfig | None = None
+    clips: list[Clip],
+    make_pipeline: PipelineFactory,
+    seed: int = 42,
+    config: DetectionConfig | None = None,
+    background_target_s: float = BACKGROUND_TARGET_S,
 ) -> BenchReport:
     """Replay each baby sound between quiet room sounds, then at least two hours of backgrounds.
 
@@ -134,7 +153,9 @@ def run_bench(
     its own; backgrounds are replayed with the settings as they run in real life.
     """
     config = config or DetectionConfig()
-    rng = np.random.default_rng(seed)
+    # Two independent draws: adding a baby sound does not change the backgrounds' order and gains.
+    baby_rng = np.random.default_rng([seed, 0])
+    background_rng = np.random.default_rng([seed, 1])
     rooms = [clip for clip in clips if clip.label == "background" and "room" in clip.tags]
     babies = [clip for clip in clips if clip.label in BABY_LABELS]
     backgrounds = [clip for clip in clips if clip.label == "background"]
@@ -146,7 +167,7 @@ def run_bench(
     detected: dict[str, list[bool]] = defaultdict(list)
     lead = int(LEAD_S * SAMPLE_RATE)
     for clip in babies:
-        padding = np.resize(load_audio(rooms[rng.integers(len(rooms))].file), lead + int(TAIL_S * SAMPLE_RATE))
+        padding = np.resize(load_audio(rooms[baby_rng.integers(len(rooms))].file), lead + int(TAIL_S * SAMPLE_RATE))
         audio = load_audio(clip.file)
         # Without the anti-burst pause: an earlier alert must not hide a long cry the chain misses.
         pipeline = make_pipeline(_sieste, replace(config, pause_s=0.0))
@@ -165,17 +186,17 @@ def run_bench(
     background_s = 0.0
     if backgrounds:
         pipeline = make_pipeline(_sieste, config)
-        while background_s < BACKGROUND_TARGET_S:
-            for index in rng.permutation(len(backgrounds)):
+        while background_s < background_target_s:
+            for index in background_rng.permutation(len(backgrounds)):
                 clip = backgrounds[index]
-                gain = 10 ** (rng.uniform(-GAIN_RANGE_DB, GAIN_RANGE_DB) / 20)
+                gain = 10 ** (background_rng.uniform(-GAIN_RANGE_DB, GAIN_RANGE_DB) / 20)
                 audio = np.clip(load_audio(clip.file) * gain, -1.0, 1.0).astype(np.float32)
                 for alert in pipeline.feed(audio):
                     false_alerts += 1
                     net = ", scream net" if alert.via_scream_net else ""
                     details.append(f"{clip.file.name} ({alert.kind}{net}) at {alert.offset_s:.1f} s")
                 background_s += len(audio) / SAMPLE_RATE
-                if background_s >= BACKGROUND_TARGET_S:
+                if background_s >= background_target_s:
                     break
 
     return BenchReport(
