@@ -264,6 +264,19 @@ Le banc mesure la sensibilité moyenne. Les seuils faible et forte l'encadrent, 
 
 La sensibilité n'est pas encore réglable dans l'app ; avant de l'ouvrir, il faudra revoir ce qu'elle change (par exemple, ne jamais monter le seuil des pleurs).
 
+**Réglage du 2026-11-26** (décision de l'auteur, issue #21) : la sensibilité ne monte jamais le seuil des pleurs. Faible et moyenne le gardent à 0,5, forte le baisse ; les gémissements, babillages et rires suivent la sensibilité (0,7, 0,5, 0,3). Mesures sur le même banc (6 h de fonds) :
+
+| Sensibilité (seuil des pleurs / des autres sons) | Pleurs longs manqués | Fausses alertes par 2 h | Pleurs, gémissements, babillages, rires signalés |
+|---|---|---|---|
+| faible (0,5 / 0,7) | 0 sur 32 | 1,33 | 97 %, 60 %, 40 %, 30 % |
+| moyenne (0,5 / 0,5) | 0 | 1,33 | 97 %, 70 %, 60 %, 70 % |
+| forte, pleurs à 0,45 (/ 0,3) | 0 | 1,33 | 97 %, 70 %, 70 %, 90 % |
+| **forte, pleurs à 0,4 (/ 0,3), retenu** | 0 | 1,33 | 100 %, 80 %, 70 %, 90 % |
+| forte, pleurs à 0,35 (/ 0,3) | 0 | 1,33 | 100 %, 80 %, 70 %, 90 % |
+| forte, pleurs à 0,3 (/ 0,3) | 0 | 2,66 (porte, chat) | 100 %, 90 %, 70 %, 90 % |
+
+Les 4 fausses alertes de chaque ligne viennent de la porte qui grince ; le chat n'alerte qu'avec un seuil des pleurs à 0,3. Forte retient 0,4 : tous les pleurs du banc sont signalés, sans fausse alerte de plus, loin du chat. La CI vérifie que faible et forte ne manquent aucun pleur long.
+
 ### Autres réglages essayés
 
 Sur 6 tirages de 2 h, aucun réglage ne tient à la fois « 0 pleur long manqué » et « au plus 1 fausse alerte par 2 h » :

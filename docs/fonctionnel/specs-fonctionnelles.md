@@ -139,7 +139,8 @@ Le texte dit **ce qui a été entendu** et **l'heure** (§ 15).
 
 **F-23 Sensibilité réglable** (P13)
 La sensibilité de la détection se règle dans l'app.
-*Critère* : une sensibilité plus haute déclenche sur des pleurs plus faibles du banc d'essai.
+*Amendé le 2026-11-26 (banc d'essai, lot 2)* : la sensibilité ne monte jamais le seuil des pleurs. Faible et moyenne gardent celui réglé sur le banc d'essai ; seule forte le baisse, pour des pleurs plus faibles. Elle règle surtout les autres sons du bébé (gémissements, babillages, rires).
+*Critère* : sur le banc d'essai, aucune sensibilité ne manque un pleur de plus de 8 secondes, et la forte déclenche sur des pleurs plus faibles.
 
 **F-24 Priorité des alertes** (P19)
 Les alertes sont envoyées avec la **priorité haute** des notifications web.
@@ -305,7 +306,7 @@ L'app conseille de faire la mise à jour **à la maison** : elle télécharge pl
 
 | Réglage | Valeur par défaut | Exigence |
 |---|---|---|
-| Sensibilité de la détection | Moyenne (à régler sur le banc d'essai) | F-23 |
+| Sensibilité de la détection | Moyenne (réglée sur le banc d'essai) | F-23 |
 | Pause anti-rafale | À régler sur le banc d'essai | F-21 |
 | Caméra permanente ou à la demande | Permanente | F-31 |
 | Correction de température | 0 °C | F-41 |
