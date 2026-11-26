@@ -173,6 +173,7 @@ Mis à jour dans `docs/technique/choix-techniques-et-architecture.md` : § 5, 7.
 | iCloud Private Relay | Avec un téléphone qui a iCloud+ |
 | Client Mender, mode autonome, retour arrière | Lot 11 |
 | Autres lignes du § 20.1 (portail captif, PWA sur iPhone, partage de connexion de l'iPhone retrouvé, batterie) | Dans leurs lots |
+| Détection avec un vrai bébé, dont un pleur mêlé à une musique ou une berceuse (section « Essai du micro avec des pleurs ») | Par l'auteur, en conditions réelles |
 
 ## Configuration retenue
 
@@ -302,3 +303,22 @@ Exiger 4 tranches positives fait disparaître la porte, mais fait manquer un vra
 - **Le délai** de 7,8 s au plus tient dans le budget de 8 s, avec peu de marge.
 - **Mesuré sur PC (x86)** : le job `detection` de la CI rejoue le banc aussi sur ARM, comme le Pi ; son premier passage dira si les résultats y sont les mêmes.
 - **Les niveaux du banc ne sont pas ceux d'une vraie chambre** : chaque enregistrement a son propre gain. À reprendre avec les enregistrements du bébé, gardés en local (`python -m marmotte.detection.bench run --local`).
+
+## Essai du micro avec des pleurs (lot 2)
+
+Fait le 26 novembre 2026 sur le Pi de dev : le service de détection écoute le micro partagé (`uv run python -m marmotte.detection --alsa micro`, dans `backend/`) pendant que l'auteur joue des sons au téléphone. Les alertes et les lignes de stats (toutes les 10 s) sont relevées ; aucun son n'est enregistré.
+
+| Écoute | Son joué | Niveau (bruit de fond) | Alerte |
+|---|---|---|---|
+| 1 (5 min), moyenne | pleur net, à environ 50 cm | −61 à −50 dBFS (−63 dBFS) | pleur, 35 s après le début de l'écoute |
+| | coup sur le bureau | −31 dBFS | aucune |
+| | deuxième pleur | −52 à −45 dBFS | pleur, 68 s après la première alerte |
+| | pleur moins fort, à environ 1,5 m, avec une musique douce | −45 à −43 dBFS | aucune, mais la pause anti-rafale en couvrait l'essentiel |
+| 2 (2 min), moyenne | le même pleur moins fort avec la musique, seul, environ 30 s | environ −51 dBFS (−61 dBFS) | **aucune** |
+| 3 (2 min), forte | le même son, environ 50 s | −60 à −50 dBFS (−67 à −64 dBFS) | **aucune** |
+
+- **Le micro fonctionne** : lecture continue, « mic silent: False » tout du long, arrêt propre sur Ctrl+C. Le test du vrai micro (`uv run pytest marmotte/detection/tests/test_audio.py -m hardware`) passe aussi.
+- **Le délai n'est pas mesuré** : l'heure de début de chaque son n'a pas été notée.
+- **Un pleur faible mêlé à une musique douce passe**, en sensibilité moyenne comme forte. Le son reste environ 10 dB au-dessus du bruit de fond : le modèle tournait sans doute, c'est la reconnaissance qui ne suit pas. C'est le constat de la tâche 6 : avec de la musique, une ou deux tranches seulement dépassent 0,5 par période de 10 s, alors que la fenêtre en demande 3 sur 6. Les scores tranche par tranche n'ont pas été relevés, et le banc ne contient aucun pleur mêlé à une musique.
+- **Décision de l'auteur** : limite acceptée pour la V1, car un haut-parleur de téléphone est bien plus faible qu'un vrai bébé. À revoir avec des essais en conditions réelles ; si YAMNet ne suffit pas, la piste est EfficientAT (`docs/pistes/efficientat.md`).
+- **Pour le prochain essai** : laisser au moins 60 s entre une alerte et le son suivant. Pendant la pause anti-rafale, aucune autre alerte de pleur ne part (F-21) : elle masque un son qui commence trop tôt.
