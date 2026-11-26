@@ -109,7 +109,8 @@ Le délai de la V1 est serré (§ 18.1 des specs techniques). Le calendrier suit
 | 0 | `docs/plans/2026-11-19-lot-0-preparation.md` | Écrit |
 | 1 | `docs/plans/2026-11-19-lot-1-fondations.md` | Écrit |
 | 2 | `docs/plans/2026-11-19-lot-2-detection.md` | Écrit |
-| 3 à 14 | À écrire au démarrage de chaque lot, en tenant compte des résultats du lot 0 | — |
+| 3 | `docs/plans/2026-11-26-lot-3-notifications.md` (design : `docs/plans/2026-11-26-lot-3-notifications-design.md`) | Écrit |
+| 4 à 14 | À écrire au démarrage de chaque lot, en tenant compte des résultats du lot 0 | — |
 
 ---
 
