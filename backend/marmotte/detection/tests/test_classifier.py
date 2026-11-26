@@ -22,15 +22,16 @@ FIXTURES = Path(__file__).parent / "fixtures"
 MODEL_BYTES = b"not really a model"
 
 
-def _write_models_toml(models_dir: Path, sha256: str) -> None:
+def _write_models_toml(models_dir: Path, sha256: str, url: str = "https://example.invalid/yamnet.tflite") -> None:
     """Write a models.toml that describes a fake model file."""
-    (models_dir / "models.toml").write_text(
-        "[yamnet]\n"
-        'url = "https://example.invalid/yamnet.tflite"\n'
-        f'sha256 = "{sha256}"\n'
-        'file = "yamnet.tflite"\n'
-        'license = "Apache-2.0"\n'
-    )
+    lines = [
+        "[yamnet]",
+        f'url = "{url}"',
+        f'sha256 = "{sha256}"',
+        'file = "yamnet.tflite"',
+        'license = "Apache-2.0"',
+    ]
+    (models_dir / "models.toml").write_text("\n".join(lines) + "\n")
 
 
 def _fake_download(url: str, destination: Path) -> None:
@@ -120,6 +121,16 @@ class TestEnsureYamnet:
         monkeypatch.setattr(model_files, "_download", cut_download)
         # WHEN / THEN
         with pytest.raises(OSError, match="connection reset"):
+            ensure_yamnet(tmp_path)
+        assert not (tmp_path / "yamnet.tflite").exists()
+        assert not (tmp_path / "yamnet.tflite.part").exists()
+
+    def test_refuses_non_https_url(self, tmp_path: Path) -> None:
+        """A models.toml URL that is not https (file://, http://) is refused before any download."""
+        # GIVEN
+        _write_models_toml(tmp_path, hashlib.sha256(MODEL_BYTES).hexdigest(), url="file:///etc/hostname")
+        # WHEN / THEN
+        with pytest.raises(ValueError, match="https"):
             ensure_yamnet(tmp_path)
         assert not (tmp_path / "yamnet.tflite").exists()
         assert not (tmp_path / "yamnet.tflite.part").exists()
