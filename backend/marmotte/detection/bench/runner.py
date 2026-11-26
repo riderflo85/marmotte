@@ -38,10 +38,12 @@ MIN_BACKGROUND_S = 7_200.0
 """D81: false alerts are measured on at least 2 hours of backgrounds."""
 BACKGROUND_TARGET_S = 21_600.0
 """Seconds of backgrounds replayed: 6 hours, so that the false alert rate hardly depends on the draw."""
+TARGET_FALSE_ALERTS_PER_2H = 2.0
+"""D81 (amended on 2026-11-26): at most two false alerts per 2-hour nap. YAMNet alerts on a door creak,
+accepted since it may tell that someone enters the room."""
 MAX_FALSE_ALERTS_PER_2H = 1.34
 """CI gate (P67): 4 false alerts in 6 h (1.33 per 2 h, all from the door creak) when lot 2 was tuned;
-more is a regression. D81 asks for at most 1, not reached yet with YAMNet
-(`docs/plans/resultats-tests-prealables.md`)."""
+more is a regression, even under the D81 target (`docs/plans/resultats-tests-prealables.md`)."""
 GAIN_RANGE_DB = 6.0
 """Each background is replayed with a random gain within ± this value."""
 BENCH_TIME = datetime(2026, 1, 1, tzinfo=UTC)
@@ -94,8 +96,10 @@ class BenchReport:
     """One line per false alert: file, kind and time in the background stream."""
 
     def meets_targets(self) -> bool:
-        """D81: no long cry missed, at most one false alert per two hours, measured on enough sound."""
-        return self._measured() and self.missed_long_cries == 0 and self.false_alerts_per_2h <= 1.0
+        """D81: no long cry missed, at most two false alerts per two hours, measured on enough sound."""
+        return (
+            self._measured() and self.missed_long_cries == 0 and self.false_alerts_per_2h <= TARGET_FALSE_ALERTS_PER_2H
+        )
 
     def passes_ci_gate(self) -> bool:
         """P67: no long cry missed, and no more false alerts than when the detection was tuned."""
@@ -113,7 +117,8 @@ class BenchReport:
             + ", ".join(f"{label} {recall:.0%}" for label, recall in sorted(self.recall_by_label.items())),
             *(f"  missed: {name}" for name in self.missed_clips),
             *(f"  false alert: {detail}" for detail in self.false_alert_details),
-            "Targets (D81): " + ("met" if self.meets_targets() else "NOT met"),
+            f"Targets (D81: no missed long cry, at most {TARGET_FALSE_ALERTS_PER_2H:g} false alerts per 2 h): "
+            + ("met" if self.meets_targets() else "NOT met"),
             f"CI gate (no missed long cry, at most {MAX_FALSE_ALERTS_PER_2H:g} false alerts per 2 h): "
             + ("passed" if self.passes_ci_gate() else "FAILED"),
         ]

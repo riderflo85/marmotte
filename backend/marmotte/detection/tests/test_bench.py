@@ -8,6 +8,8 @@ import pytest
 import soundfile as sf
 
 from marmotte.common.enums import Mode
+from marmotte.common.enums import Sensitivity
+from marmotte.detection.bench import __main__ as bench_main
 from marmotte.detection.bench.manifest import Clip
 from marmotte.detection.bench.manifest import load_manifest
 from marmotte.detection.bench.prepare import prepare_clip
@@ -146,12 +148,12 @@ class TestLoadManifest:
 
 
 class TestBenchReport:
-    def test_meets_targets_only_with_zero_missed_and_at_most_one_fa(self) -> None:
-        """D81: no missed long cry and at most one false alert per two hours."""
+    def test_meets_targets_only_with_zero_missed_and_at_most_two_fa(self) -> None:
+        """D81 (amended on 2026-11-26): no missed long cry and at most two false alerts per two hours."""
         # GIVEN
-        good = BenchReport(10, 0, 1, 7200.0, 1.0, {})
+        good = BenchReport(10, 0, 2, 7200.0, 2.0, {})
         missed_one = BenchReport(10, 1, 0, 7200.0, 0.0, {})
-        too_many_fa = BenchReport(10, 0, 3, 7200.0, 1.5, {})
+        too_many_fa = BenchReport(10, 0, 7, 21_600.0, 2.33, {})
         # WHEN / THEN
         assert good.meets_targets()
         assert not missed_one.meets_targets()
@@ -320,3 +322,26 @@ class TestRunBench:
         assert (report.long_cries, report.missed_long_cries) == (1, 1)
         assert report.recall_by_label == {"cry": 0.0}
         assert not report.meets_targets()
+
+
+class TestBenchCommand:
+    def test_run_replays_the_bench_with_the_chosen_sensitivity(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """`run --sensitivity high` replays the bench with that sensitivity and names it in the report."""
+        # GIVEN
+        configs: list[DetectionConfig | None] = []
+
+        def fake_run_bench(
+            clips: list[Clip], make_pipeline: object, config: DetectionConfig | None = None
+        ) -> BenchReport:
+            configs.append(config)
+            return BenchReport(10, 0, 0, 21_600.0, 0.0, {})
+
+        monkeypatch.setattr(bench_main, "run_bench", fake_run_bench)
+        # WHEN
+        code = bench_main.main(["run", "--manifest", str(_manifest_with(tmp_path)), "--sensitivity", "high"])
+        # THEN
+        assert code == 0
+        assert configs == [DetectionConfig(sensitivity=Sensitivity.HIGH)]
+        assert capsys.readouterr().out.startswith("Sensitivity: high\n")

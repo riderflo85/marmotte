@@ -8,9 +8,9 @@ Le module `marmotte.detection` écoute le micro et décide quand prévenir les p
 
 ## Contexte
 
-Un pleur manqué est l'erreur la plus grave (D23) : une alerte doit partir au plus 8 s après le début d'un pleur qui dure (D24), sans réveiller les parents pour un bruit de la maison (au plus une fausse alerte par sieste de 2 h, D81). Le tout tourne sur le processeur du Pi 4, à côté du live (6 % d'un cœur pour YAMNet, mesuré au lot 0).
+Un pleur manqué est l'erreur la plus grave (D23) : une alerte doit partir au plus 8 s après le début d'un pleur qui dure (D24), sans réveiller les parents pour un bruit de la maison (au plus deux fausses alertes par sieste de 2 h, D81 amendé le 2026-11-26). Le tout tourne sur le processeur du Pi 4, à côté du live (6 % d'un cœur pour YAMNet, mesuré au lot 0).
 
-Le module est du Python pur, sans Django : il deviendra le service `marmotte-detection`, séparé de l'app (D82). Le modèle est caché derrière une interface `Classifier`, pour pouvoir passer à un autre modèle (EfficientAT, D62) sans toucher au reste. La spec de référence est la § 8 de `docs/technique/choix-techniques-et-architecture.md` ; les mesures du banc sont dans `docs/plans/resultats-tests-prealables.md`, section « Banc de détection (lot 2) ».
+Le module est du Python pur, sans Django : il deviendra le service `marmotte-detection`, séparé de l'app (D82). Le modèle est caché derrière une interface `Classifier`, pour pouvoir passer à un autre modèle (EfficientAT, D62, piste pour la V2 : `docs/pistes/efficientat.md`) sans toucher au reste. La spec de référence est la § 8 de `docs/technique/choix-techniques-et-architecture.md` ; les mesures du banc sont dans `docs/plans/resultats-tests-prealables.md`, section « Banc de détection (lot 2) ».
 
 ## Architecture
 
@@ -75,7 +75,7 @@ sequenceDiagram
 2. **Niveau** : mesuré après un filtre passe-haut à 80 Hz, qui retire les variations de pression lentes du micro (1 à 2 Hz vers -50 dBFS, lot 0) ; YAMNet, lui, reçoit le son brut.
 3. **Bruit de fond** : il suit vite la pièce pendant les 10 premières secondes, puis descend vite (constante de 2 s) et monte lentement (0,1 dB/s au plus), pour qu'un long pleur ne s'y fonde pas. Un son est comparé au bruit de fond tel qu'il était avant lui.
 4. **Porte** : YAMNet tourne si l'un des deux pas de la tranche dépasse le bruit de fond de 3 dB ; sinon la tranche compte comme vide.
-5. **Fenêtre glissante** : une tranche est positive pour une catégorie quand son score atteint le seuil (0,5 en sensibilité moyenne). Une décision tombe dès que 3 des 6 dernières tranches sont positives pour la même catégorie ; en cas d'égalité, l'ordre est pleur, gémissement, babillage, rire.
+5. **Fenêtre glissante** : une tranche est positive pour une catégorie quand son score atteint le seuil de cette catégorie (0,5 pour toutes en sensibilité moyenne). Une décision tombe dès que 3 des 6 dernières tranches sont positives pour la même catégorie ; en cas d'égalité, l'ordre est pleur, gémissement, babillage, rire.
 6. **Filet « hurlement »** : il part dès qu'une tranche a un score « Screaming » d'au moins 0,5, une fois par épisode, quoi que décide la fenêtre. Il ne part plus sur le niveau seul (amendement du 2026-11-25).
 7. **Mode** : seule la Sieste envoie des alertes ; en Surveillance silencieuse, ni la fenêtre ni le filet ne préviennent.
 8. **Anti-rafale** : après une alerte de pleur, la suivante attend 60 s. Une alerte du filet passe outre cette pause et la relance, mais a sa propre pause de 60 s : un pleur continu donne une notification par pause (F-21).
@@ -92,9 +92,10 @@ Réglages de la chaîne (`DetectionConfig` et constantes, valeurs actuelles) :
 | `DetectionConfig.gate_margin_db` | 3,0 dB | Écart au bruit de fond qui fait tourner YAMNet |
 | `DetectionConfig.n` | 6 | Tranches récentes regardées par la fenêtre glissante |
 | `DetectionConfig.k` | 3 | Tranches positives nécessaires pour décider |
-| `DetectionConfig.sensitivity` | `medium` | Choisit le seuil dans `THRESHOLDS` |
+| `DetectionConfig.sensitivity` | `medium` | Choisit le seuil de chaque catégorie (`thresholds_for`) |
 | `DetectionConfig.pause_s` | 60 s | Pause anti-rafale, pour les pleurs comme pour le filet |
-| `THRESHOLDS` | faible 0,7, moyenne 0,5, forte 0,3 | Score à partir duquel une tranche est positive |
+| `CRY_THRESHOLDS` | faible 0,5, moyenne 0,5, forte 0,4 | Score à partir duquel une tranche compte comme pleur ; jamais au-dessus de 0,5, réglé au banc pour ne manquer aucun pleur long |
+| `OTHER_THRESHOLDS` | faible 0,7, moyenne 0,5, forte 0,3 | Score à partir duquel une tranche compte comme gémissement, babillage ou rire |
 | `YAMNET_NAMES` | pleur : « Baby cry, infant cry » et « Crying, sobbing » ; « Whimper », « Babbling », « Baby laughter », « Screaming » | Catégories YAMNet retenues ; le score d'une catégorie est le plus haut de son groupe |
 | `ScreamNet(score_threshold)` | 0,5 | Score « Screaming » qui déclenche le filet |
 | `HighPass(cutoff_hz, order)` | 80 Hz, ordre 2 | Filtre avant la mesure du niveau |
@@ -132,6 +133,7 @@ Le banc (`backend/bench/`) contient 127 sons Freesound sous licence CC0 ou CC BY
 ```bash
 cd backend
 uv run python -m marmotte.detection.bench run            # rapport, code de sortie 1 si le garde-fou échoue
+uv run python -m marmotte.detection.bench run --sensitivity high   # low, medium (par défaut) ou high
 uv run python -m marmotte.detection.bench run --local    # ajoute backend/bench/local/manifest.toml, ignoré par Git
 uv run python -m marmotte.detection.bench prepare telechargement.mp3 --label cry \
     --source https://freesound.org/s/12345/ --author quelqu_un --license CC0-1.0 \
@@ -142,12 +144,12 @@ uv run python -m marmotte.detection.bench prepare telechargement.mp3 --label cry
 
 `run` rejoue chaque son de bébé entre 15 s de pièce calme et 5 s de fin, sans pause anti-rafale, puis 6 h de bruits de fond enchaînés dans un ordre et à un gain (±6 dB) tirés au sort (graine 42). Un pleur long (plus de 8 s) est signalé si une alerte part dans les 8 s qui suivent son début. Le rapport donne les pleurs longs manqués, les fausses alertes par 2 h, la part de sons signalés par catégorie, l'objectif D81 (« met » ou « NOT met ») et le garde-fou de la CI.
 
-**Garde-fou de la CI** (P67) : la fusion est refusée si un pleur long est manqué, ou si les fausses alertes dépassent `MAX_FALSE_ALERTS_PER_2H` (1,34 par 2 h, soit le niveau mesuré au réglage du lot 2). Le job `detection` de `.github/workflows/ci.yml` lance `pytest -m "model or bench"` sur x86 et ARM quand la détection, le banc, le modèle, les dépendances ou les réglages de Python changent ; le modèle est gardé en cache selon l'empreinte de `models.toml`.
+**Garde-fou de la CI** (P67) : la fusion est refusée si un pleur long est manqué, ou si les fausses alertes dépassent `MAX_FALSE_ALERTS_PER_2H` (1,34 par 2 h, soit le niveau mesuré au réglage du lot 2). Les sensibilités faible et forte rejouent aussi les sons de bébé (sans les bruits de fond, environ 20 s chacune) : aucune ne doit manquer un pleur long. Le job `detection` de `.github/workflows/ci.yml` lance `pytest -m "model or bench"` sur x86 et ARM quand la détection, le banc, le modèle, les dépendances ou les réglages de Python changent ; le modèle est gardé en cache selon l'empreinte de `models.toml`.
 
 ## Points d'attention
 
-- **L'objectif D81 n'est pas encore tenu** : 4 fausses alertes en 6 h de fonds, soit 1,33 par 2 h, toutes dues à une porte qui grince que YAMNet note 0,96 « pleur de bébé ». Aucun réglage essayé ne tient à la fois 0 pleur manqué et 1 fausse alerte par 2 h ; la piste est EfficientAT. Le seuil de 0,5 tombe pile sur un des niveaux de score de YAMNet, et la marge du garde-fou est nulle.
-- **Les sensibilités faible et forte ne sont pas réglées** : en faible, 4 pleurs longs sur 32 sont manqués ; en forte, 2,66 fausses alertes par 2 h. À revoir avant de proposer la sensibilité dans l'app.
+- **L'objectif D81 est tenu depuis son amendement du 2026-11-26** (au plus deux fausses alertes par 2 h, au lieu d'une) : 4 fausses alertes en 6 h de fonds, soit 1,33 par 2 h, toutes dues à une porte qui grince que YAMNet note 0,96 « pleur de bébé ». L'auteur l'accepte : elle peut signaler que quelqu'un entre dans la pièce. Aucun réglage essayé ne tenait à la fois 0 pleur manqué et 1 fausse alerte par 2 h ; si YAMNet ne suffit pas en conditions réelles, la piste est EfficientAT (`docs/pistes/efficientat.md`). Le seuil de 0,5 tombe pile sur un des niveaux de score de YAMNet, et la marge du garde-fou est nulle.
+- **La sensibilité ne monte jamais le seuil des pleurs** (décision de l'auteur, 2026-11-26) : faible et moyenne le gardent à 0,5, forte le baisse à 0,4 ; elle règle surtout les gémissements, babillages et rires. Aucune sensibilité ne manque un pleur long du banc, et toutes donnent 1,33 fausse alerte par 2 h (la porte). Faible signale 60 % des gémissements, 40 % des babillages et 30 % des rires ; forte, tous les pleurs du banc (même `cry-393769`), 80 %, 70 % et 90 %. À 0,3 pour les pleurs, forte passait à 2,66 fausses alertes par 2 h (un chat).
 - **Le filet ne rattrape plus un cri que YAMNet ne reconnaît pas** (2 cris sur 8 du banc : un bébé de 4 mois pris pour un chien, un enfant excité qui court).
 - **Un pleur court peut passer** : `cry-393769` (6 s) ne donne aucune alerte ; seuls les pleurs de plus de 8 s sont garantis.
 - **Un son continu peu au-dessus du bruit de fond s'y fond** : 6 dB au-dessus d'une musique, le modèle cesse de tourner après environ 30 s, d'où une seule alerte sur 2 minutes. Les vrais pleurs, entrecoupés de respirations, devraient l'éviter ; à vérifier avec des enregistrements réels.

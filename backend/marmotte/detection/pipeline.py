@@ -13,10 +13,10 @@ from marmotte.common.enums import Sensitivity
 from marmotte.common.enums import SoundClass
 from marmotte.detection.audio import clean_samples
 from marmotte.detection.classifier import Classifier
-from marmotte.detection.decision import THRESHOLDS
 from marmotte.detection.decision import AntiBurst
 from marmotte.detection.decision import ScreamNet
 from marmotte.detection.decision import SlidingWindowDecider
+from marmotte.detection.decision import thresholds_for
 from marmotte.detection.level import SILENCE_DB
 from marmotte.detection.level import HighPass
 from marmotte.detection.level import MicHealth
@@ -45,7 +45,7 @@ class DetectionConfig:
     k: int = 3
     """Slices of the window that must reach the threshold for a baby category."""
     sensitivity: Sensitivity = Sensitivity.MEDIUM
-    """Chooses the score threshold of a slice (`THRESHOLDS`)."""
+    """Chooses the score threshold of each baby category (`thresholds_for`)."""
     pause_s: float = 60.0
     """Anti-burst pause, in seconds: no other cry alert until it is over."""
 
@@ -87,7 +87,7 @@ class DetectionPipeline:
         self._high_pass = HighPass()
         self._floor = NoiseFloor()
         self._mic = MicHealth()
-        self._decider = SlidingWindowDecider(THRESHOLDS[config.sensitivity], n=config.n, k=config.k)
+        self._decider = SlidingWindowDecider(thresholds_for(config.sensitivity), n=config.n, k=config.k)
         self._scream_net = ScreamNet()
         self._anti_burst = AntiBurst(pause_s=config.pause_s)
 
