@@ -124,7 +124,7 @@ uv run python -m marmotte.detection --wav sieste.flac
 {"id": "09adca2a-5ab5-40de-8b2c-60fb446f7b2c", "kind": "cry", "at": "2026-11-25T16:52:22.852403+00:00", "offset_s": 11.7, "via_scream_net": false}
 ```
 
-Le journal (sortie d'erreur) donne toutes les 10 s : `level -45.0 dBFS, floor -54.2 dBFS, mic silent: False, last alert: None`. Sur le Pi : `uv run python -m marmotte.detection --alsa micro` (non rejoué ici, il faut `libportaudio2`).
+Le journal (sortie d'erreur) donne toutes les 10 s : `level -45.0 dBFS, floor -54.2 dBFS, mic silent: False, last alert: None`. Sur le Pi : `uv run python -m marmotte.detection --alsa micro` (il faut `libportaudio2`). Essai du 2026-11-26 avec des pleurs joués au téléphone : `docs/plans/resultats-tests-prealables.md`, section « Essai du micro avec des pleurs ».
 
 ### Banc d'essai
 
@@ -152,6 +152,7 @@ uv run python -m marmotte.detection.bench prepare telechargement.mp3 --label cry
 - **La sensibilité ne monte jamais le seuil des pleurs** (décision de l'auteur, 2026-11-26) : faible et moyenne le gardent à 0,5, forte le baisse à 0,4 ; elle règle surtout les gémissements, babillages et rires. Aucune sensibilité ne manque un pleur long du banc, et toutes donnent 1,33 fausse alerte par 2 h (la porte). Faible signale 60 % des gémissements, 40 % des babillages et 30 % des rires ; forte, tous les pleurs du banc (même `cry-393769`), 80 %, 70 % et 90 %. À 0,3 pour les pleurs, forte passait à 2,66 fausses alertes par 2 h (un chat).
 - **Le filet ne rattrape plus un cri que YAMNet ne reconnaît pas** (2 cris sur 8 du banc : un bébé de 4 mois pris pour un chien, un enfant excité qui court).
 - **Un pleur court peut passer** : `cry-393769` (6 s) ne donne aucune alerte ; seuls les pleurs de plus de 8 s sont garantis.
+- **Un pleur faible mêlé à une musique douce passe** : sur le Pi, un pleur joué moins fort par un téléphone à environ 1,5 m, avec une musique douce, ne déclenche aucune alerte, en sensibilité moyenne comme forte. Limite acceptée pour la V1 (décision de l'auteur, 2026-11-26) : un haut-parleur de téléphone est bien plus faible qu'un vrai bébé. À revoir avec des essais en conditions réelles ; le banc ne contient aucun pleur mêlé à une musique.
 - **Un son continu peu au-dessus du bruit de fond s'y fond** : 6 dB au-dessus d'une musique, le modèle cesse de tourner après environ 30 s, d'où une seule alerte sur 2 minutes. Les vrais pleurs, entrecoupés de respirations, devraient l'éviter ; à vérifier avec des enregistrements réels.
 - **Mesures faites sur PC (x86)** ; le job ARM de la CI dira si le modèle se comporte pareil sur l'architecture du Pi.
 - **Le micro demande PortAudio** : `sounddevice` n'est importé qu'à l'ouverture d'`AlsaSource`, pour que le reste tourne sans `libportaudio2` (CI, PC). Si le périphérique ALSA se bloque, la lecture attend sans fin et la santé du micro ne bouge plus ; la surveillance des services viendra plus tard.
@@ -163,7 +164,7 @@ uv run python -m marmotte.detection.bench prepare telechargement.mp3 --label cry
 cd backend
 uv run pytest marmotte/detection/tests -m "not hardware and not model and not bench"   # comme la CI de base, environ 50 s
 uv run pytest -m "model or bench"                                                     # vrai YAMNet et banc complet, environ 2 min 20 sur PC
-uv run pytest marmotte/detection/tests/test_audio.py -m hardware                      # sur le Pi seulement (non rejoué ici)
+uv run pytest marmotte/detection/tests/test_audio.py -m hardware                      # sur le Pi seulement
 ```
 
 Les tests de la chaîne utilisent de faux classifieurs (`marmotte/detection/tests/fakes.py`) : on vérifie la décision sans le modèle. Les tests marqués `model` font tourner le vrai YAMNet (classification de l'extrait de pleur, porte qui claque, fête dès le démarrage, ligne de commande) ; `bench` rejoue le banc complet.
