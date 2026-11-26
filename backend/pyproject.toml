@@ -84,6 +84,13 @@ select = [
     "ANN",  # type annotations required
     "TID",  # no relative import of a parent module
     "ERA",  # commented-out code
+    "DTZ",  # timezone-aware datetimes only
+    "ASYNC",  # no blocking call inside async code
+    "S",    # security (bandit)
+]
+ignore = [
+    "S603",  # flags every subprocess call, even with fixed arguments; S602 (shell=True) and S605 (os.system) still apply
+    "S607",  # programs found through PATH (git, systemctl) are normal on the Pi and in Git hooks
 ]
 
 [tool.ruff.lint.isort]
@@ -98,6 +105,9 @@ ban-relative-imports = "parents"
 [tool.ruff.lint.per-file-ignores]
 # Settings files are assembled with star imports (base.py, dev.py, prod.py).
 "marmotte/settings/**" = ["F403", "F405"]
+# pytest checks with assert.
+"**/tests/**" = ["S101"]
+"**/test_*.py" = ["S101"]
 
 [tool.pyright]
 pythonVersion = "3.14"

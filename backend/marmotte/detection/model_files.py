@@ -21,7 +21,13 @@ class ModelChecksumError(Exception):
 
 
 def _download(url: str, destination: Path) -> None:
-    with urllib.request.urlopen(url, timeout=_DOWNLOAD_TIMEOUT_S) as response, destination.open("wb") as out:
+    # urlopen would also read file:// and custom schemes: a model only comes from an https URL.
+    if not url.startswith("https://"):
+        raise ValueError(f"Model URL must use https: {url}")
+    with (
+        urllib.request.urlopen(url, timeout=_DOWNLOAD_TIMEOUT_S) as response,  # noqa: S310
+        destination.open("wb") as out,
+    ):
         shutil.copyfileobj(response, out)
 
 
