@@ -8,9 +8,9 @@ Le module `marmotte.detection` écoute le micro et décide quand prévenir les p
 
 ## Contexte
 
-Un pleur manqué est l'erreur la plus grave (D23) : une alerte doit partir au plus 8 s après le début d'un pleur qui dure (D24), sans réveiller les parents pour un bruit de la maison (au plus une fausse alerte par sieste de 2 h, D81). Le tout tourne sur le processeur du Pi 4, à côté du live (6 % d'un cœur pour YAMNet, mesuré au lot 0).
+Un pleur manqué est l'erreur la plus grave (D23) : une alerte doit partir au plus 8 s après le début d'un pleur qui dure (D24), sans réveiller les parents pour un bruit de la maison (au plus deux fausses alertes par sieste de 2 h, D81 amendé le 2026-11-26). Le tout tourne sur le processeur du Pi 4, à côté du live (6 % d'un cœur pour YAMNet, mesuré au lot 0).
 
-Le module est du Python pur, sans Django : il deviendra le service `marmotte-detection`, séparé de l'app (D82). Le modèle est caché derrière une interface `Classifier`, pour pouvoir passer à un autre modèle (EfficientAT, D62) sans toucher au reste. La spec de référence est la § 8 de `docs/technique/choix-techniques-et-architecture.md` ; les mesures du banc sont dans `docs/plans/resultats-tests-prealables.md`, section « Banc de détection (lot 2) ».
+Le module est du Python pur, sans Django : il deviendra le service `marmotte-detection`, séparé de l'app (D82). Le modèle est caché derrière une interface `Classifier`, pour pouvoir passer à un autre modèle (EfficientAT, D62, piste pour la V2 : `docs/pistes/efficientat.md`) sans toucher au reste. La spec de référence est la § 8 de `docs/technique/choix-techniques-et-architecture.md` ; les mesures du banc sont dans `docs/plans/resultats-tests-prealables.md`, section « Banc de détection (lot 2) ».
 
 ## Architecture
 
@@ -146,7 +146,7 @@ uv run python -m marmotte.detection.bench prepare telechargement.mp3 --label cry
 
 ## Points d'attention
 
-- **L'objectif D81 n'est pas encore tenu** : 4 fausses alertes en 6 h de fonds, soit 1,33 par 2 h, toutes dues à une porte qui grince que YAMNet note 0,96 « pleur de bébé ». Aucun réglage essayé ne tient à la fois 0 pleur manqué et 1 fausse alerte par 2 h ; la piste est EfficientAT. Le seuil de 0,5 tombe pile sur un des niveaux de score de YAMNet, et la marge du garde-fou est nulle.
+- **L'objectif D81 est tenu depuis son amendement du 2026-11-26** (au plus deux fausses alertes par 2 h, au lieu d'une) : 4 fausses alertes en 6 h de fonds, soit 1,33 par 2 h, toutes dues à une porte qui grince que YAMNet note 0,96 « pleur de bébé ». L'auteur l'accepte : elle peut signaler que quelqu'un entre dans la pièce. Aucun réglage essayé ne tenait à la fois 0 pleur manqué et 1 fausse alerte par 2 h ; si YAMNet ne suffit pas en conditions réelles, la piste est EfficientAT (`docs/pistes/efficientat.md`). Le seuil de 0,5 tombe pile sur un des niveaux de score de YAMNet, et la marge du garde-fou est nulle.
 - **Les sensibilités faible et forte ne sont pas réglées** : en faible, 4 pleurs longs sur 32 sont manqués ; en forte, 2,66 fausses alertes par 2 h. À revoir avant de proposer la sensibilité dans l'app.
 - **Le filet ne rattrape plus un cri que YAMNet ne reconnaît pas** (2 cris sur 8 du banc : un bébé de 4 mois pris pour un chien, un enfant excité qui court).
 - **Un pleur court peut passer** : `cry-393769` (6 s) ne donne aucune alerte ; seuls les pleurs de plus de 8 s sont garantis.

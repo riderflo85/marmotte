@@ -117,7 +117,8 @@ En **mode Sieste uniquement**, les **sons de voix d'un bébé** : pleurs, gémis
 
 **F-18 Ce qui ne déclenche pas d'alerte** (D19, P10)
 Le bruit ambiant, les conversations, la musique, la télévision, les bruits d'objets (coup contre le lit, jouet qui tombe).
-*Critère* : sur le banc d'essai, au plus une fausse alerte par tranche de 2 heures de bruits de fond (NF-04).
+*Amendé le 2026-11-26 (banc d'essai, lot 2)* : au plus deux fausses alertes par tranche de 2 heures, au lieu d'une. YAMNet alerte sur une porte qui grince (1,33 fausse alerte par 2 h au banc, sur 6 h de bruits de fond) ; l'auteur l'accepte : elle peut signaler que quelqu'un entre dans la pièce.
+*Critère* : sur le banc d'essai, au plus deux fausses alertes par tranche de 2 heures de bruits de fond (NF-04).
 
 **F-19 Délai d'alerte** (D24, P18)
 Un pleur qui dure est notifié **au plus environ 8 secondes après son début**. Un pleur peut passer inaperçu environ 5 secondes s'il est capté dans les 3 secondes suivantes.
@@ -329,6 +330,7 @@ Live sous 1 seconde (F-28) ; alerte envoyée au plus ~8 secondes après le débu
 
 **NF-04 Fiabilité de la détection** (D23, D81)
 Sur le banc d'essai : **zéro pleur manqué** parmi ceux qui durent plus de 8 secondes ; **au plus une fausse alerte par sieste de 2 heures**.
+*Amendé le 2026-11-26 (banc d'essai, lot 2)* : **au plus deux fausses alertes** par sieste de 2 heures. YAMNet alerte sur une porte qui grince (1,33 fausse alerte par 2 h au banc, sur 6 h de bruits de fond) ; l'auteur l'accepte : elle peut signaler que quelqu'un entre dans la pièce.
 *Critère* : seuils vérifiés à chaque modification de la détection (intégration continue).
 
 **NF-05 Endurance**

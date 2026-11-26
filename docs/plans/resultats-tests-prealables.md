@@ -248,6 +248,8 @@ Mesuré le 25 novembre 2026 sur le PC avec le banc `backend/bench/` (`uv run pyt
 
 **Le garde-fou de la CI** (P67, décision de l'auteur) : la fusion est refusée si un pleur long est manqué, ou si les fausses alertes dépassent le niveau mesuré à ce réglage (4 en 6 h, `MAX_FALSE_ALERTS_PER_2H` dans `backend/marmotte/detection/bench/runner.py`). L'objectif D81 reste affiché dans le rapport du banc (« NOT met ») ; la piste pour l'atteindre est EfficientAT, derrière la même interface `Classifier` (D62).
 
+*Amendé le 2026-11-26 (décision de l'auteur)* : D81 vise désormais au plus deux fausses alertes par 2 h. La porte qui grince est acceptée : elle peut signaler que quelqu'un entre dans la pièce. Ce réglage tient l'objectif (« met ») ; le garde-fou de la CI ne change pas. EfficientAT devient une piste pour une V2 (`docs/pistes/efficientat.md`).
+
 **Premier passage, avec les réglages du plan** (2 h de fonds) : 1 pleur long manqué, 161 fausses alertes en 2 h, dont 157 du filet « hurlement » déclenché par le niveau.
 
 ### Sensibilités

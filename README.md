@@ -47,6 +47,7 @@ Les étapes détaillées seront écrites avec le code. Dans les grandes lignes :
 | [Specs techniques](docs/technique/choix-techniques-et-architecture.md) | Architecture et raison de chaque choix technique |
 | [Modélisation 3D](docs/technique/modelisation-3d.md) | Le boîtier imprimé |
 | [Piste : tunnel WireGuard](docs/pistes/tunnel-wireguard.md) | Le live à distance, prévu pour la V2 |
+| [Piste : EfficientAT](docs/pistes/efficientat.md) | Un modèle de détection plus précis, si YAMNet ne suffit pas (V2) |
 
 Les identifiants **D…** (décisions) et **P…** (propositions) cités dans la documentation renvoient au journal des décisions du projet, qui n'est pas publié.
 

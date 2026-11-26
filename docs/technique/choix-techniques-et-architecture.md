@@ -268,6 +268,7 @@ flowchart TB
 - **Objectifs** (seuils bloquants de P67) :
   - **zéro pleur manqué** parmi les pleurs qui durent **plus de 8 secondes** ;
   - **au plus une fausse alerte par sieste de 2 heures**, mesurée sur au moins 2 heures de bruits de fond variés sans pleur.
+    *Amendé le 2026-11-26 (banc d'essai, lot 2)* : **au plus deux fausses alertes** par sieste de 2 heures. YAMNet alerte sur une porte qui grince (1,33 fausse alerte par 2 h au banc, sur 6 h de bruits de fond) ; l'auteur l'accepte : elle peut signaler que quelqu'un entre dans la pièce. Le garde-fou de la CI reste au niveau mesuré au lot 2 (1,34 par 2 h), pour bloquer tout recul. Si YAMNet ne suffit pas en conditions réelles, la piste est EfficientAT (`docs/pistes/efficientat.md`).
 - **Plus tard** : enrichir le banc avec les enregistrements du bébé, **gardés en local**, jamais publiés.
 
 ### 8.3 Filet des notifications (P73)
@@ -594,7 +595,7 @@ Le délai de la V1 est **serré**. L'ordre ci-dessous construit d'abord ce qui f
 ### 20.2 Tranché après la relecture (2026-11-19)
 
 - **Calendrier** (Q17 → D80) : délai court, une seule V1 avec le maximum de fonctions, boîtier en dernier.
-- **Banc d'essai** (Q18 → D81) : sons d'internet sous licence libre ; zéro pleur manqué au-delà de 8 secondes ; au plus une fausse alerte par sieste de 2 heures.
+- **Banc d'essai** (Q18 → D81) : sons d'internet sous licence libre ; zéro pleur manqué au-delà de 8 secondes ; au plus une fausse alerte par sieste de 2 heures (deux depuis l'amendement du 2026-11-26, § 8.2.1).
 - **Architecture des services** (Q19 → D82) : **SSE** confirmé (P36) ; **services séparés** confirmés (P38), étendus par l'auteur à un **service de notifications**.
 - **Téléphones** (Q20 → D84) : iPhone sous iOS 27 avec Brave ; Android avec Chrome, modèle à préciser.
 - **Suivi des tâches** (D83) : GitHub Issues.
@@ -634,7 +635,8 @@ Ces points sont des détails d'implémentation, à trancher pendant la construct
 - **V2 : live à distance par tunnel WireGuard**, avec le Pi 3B+ comme pivot à la maison (`docs/pistes/tunnel-wireguard.md`). Le nom du babyphone pointera vers l'adresse du Pi dans le tunnel.
 - **V2 : veilleur à la maison** (D27) : le Pi 3B+ reçoit un signe de vie et notifie s'il s'arrête.
 - **V2 : berceuse** sur enceinte externe (D40), avec la question de la détection pendant la lecture (§ 6.10).
-- **Plus tard** : module batterie intégré (D38), alertes et courbes de température, accès invité, affinage de YAMNet avec les enregistrements du bébé, essai d'EfficientAT, passkeys comme verrou supplémentaire.
+- **V2, si YAMNet ne suffit pas en conditions réelles : EfficientAT** à la place de YAMNet, derrière la même interface (`docs/pistes/efficientat.md`).
+- **Plus tard** : module batterie intégré (D38), alertes et courbes de température, accès invité, affinage de YAMNet avec les enregistrements du bébé, passkeys comme verrou supplémentaire.
 
 ---
 
@@ -661,4 +663,5 @@ Ces points sont des détails d'implémentation, à trancher pendant la construct
 
 - `docs/brainstorming/notes-brainstorming.md` : toutes les décisions, propositions, options comparées et sources (§ 10 pour les choix techniques).
 - `docs/pistes/tunnel-wireguard.md` : évolution V2.
+- `docs/pistes/efficientat.md` : évolution V2 de la détection, si YAMNet ne suffit pas.
 - Sources principales : [go2rtc](https://github.com/AlexxIT/go2rtc), [LiteRT pour Python](https://developers.google.com/edge/litert/guide/python), [YAMNet](https://github.com/tensorflow/models/tree/master/research/audioset/yamnet), [django-ninja](https://django-ninja.dev/), [certbot-dns-infomaniak](https://github.com/Infomaniak/certbot-dns-infomaniak), [Mender, déploiement autonome](https://docs.mender.io/artifact-creation/standalone-deployment), [React Three Fiber](https://r3f.docs.pmnd.rs/), [Sensirion SHT4x](https://sensirion.com/resource/datasheet/sht4x).
