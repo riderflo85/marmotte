@@ -77,6 +77,7 @@ Le banc d'essai rejoue 127 sons libres (`bench/`) et mesure les pleurs manqués 
 
 ```bash
 uv run python -m marmotte.detection.bench run       # rapport ; code de sortie 1 si le garde-fou de la CI échoue
+uv run python -m marmotte.detection.bench run --sensitivity high   # low, medium (par défaut) ou high
 uv run pytest -m "model or bench"                   # tests avec le vrai modèle et banc complet (quelques minutes)
 ```
 

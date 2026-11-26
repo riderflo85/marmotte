@@ -4,6 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from marmotte.common.enums import Sensitivity
 from marmotte.detection.bench.manifest import BENCH_DIR
 from marmotte.detection.bench.manifest import BENCH_MANIFEST
 from marmotte.detection.bench.manifest import LABELS
@@ -13,6 +14,7 @@ from marmotte.detection.bench.prepare import parse_segments
 from marmotte.detection.bench.prepare import prepare_clip
 from marmotte.detection.bench.runner import make_yamnet_pipeline
 from marmotte.detection.bench.runner import run_bench
+from marmotte.detection.pipeline import DetectionConfig
 
 
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -34,6 +36,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     run = commands.add_parser("run", help="replay the bench and print the report")
     run.add_argument("--manifest", type=Path, default=BENCH_MANIFEST, metavar="PATH")
     run.add_argument("--local", action="store_true", help=f"add the local bench ({LOCAL_MANIFEST})")
+    run.add_argument("--sensitivity", choices=[s.value for s in Sensitivity], default=Sensitivity.MEDIUM.value)
     return parser.parse_args(argv)
 
 
@@ -57,7 +60,9 @@ def main(argv: list[str] | None = None) -> int:
     clips = load_manifest(args.manifest)
     if args.local:
         clips += load_manifest(LOCAL_MANIFEST, any_license=True)
-    report = run_bench(clips, make_yamnet_pipeline)
+    sensitivity = Sensitivity(args.sensitivity)
+    report = run_bench(clips, make_yamnet_pipeline, config=DetectionConfig(sensitivity=sensitivity))
+    print(f"Sensitivity: {sensitivity}")
     print(report.to_text())
     return 0 if report.passes_ci_gate() else 1
 
