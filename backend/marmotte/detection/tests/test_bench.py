@@ -146,12 +146,12 @@ class TestLoadManifest:
 
 
 class TestBenchReport:
-    def test_meets_targets_only_with_zero_missed_and_at_most_one_fa(self) -> None:
-        """D81: no missed long cry and at most one false alert per two hours."""
+    def test_meets_targets_only_with_zero_missed_and_at_most_two_fa(self) -> None:
+        """D81 (amended on 2026-11-26): no missed long cry and at most two false alerts per two hours."""
         # GIVEN
-        good = BenchReport(10, 0, 1, 7200.0, 1.0, {})
+        good = BenchReport(10, 0, 2, 7200.0, 2.0, {})
         missed_one = BenchReport(10, 1, 0, 7200.0, 0.0, {})
-        too_many_fa = BenchReport(10, 0, 3, 7200.0, 1.5, {})
+        too_many_fa = BenchReport(10, 0, 7, 21_600.0, 2.33, {})
         # WHEN / THEN
         assert good.meets_targets()
         assert not missed_one.meets_targets()
